@@ -3,6 +3,14 @@ image: Visual Studio 2019
 environment:
   NugetApiKey:
     secure: NK6JEky2i7+06Ij+PlJX7X0xlKT4fg2zDIFP5fiFSy6EqxcIYThFBkzzqpQTUnsO
+    
+dotnet_csproj:
+  patch: true
+  file: '**\*.csproj'
+  version: '{version}'
+  assembly_version: '{version}'
+  file_version: '{version}'
+  
 pull_requests:
   do_not_increment_build_number: true
 branches:
