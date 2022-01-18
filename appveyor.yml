@@ -12,7 +12,7 @@ nuget:
   disable_publish_on_pr: true
 test: off
 build_script:
-  - dotnet restore 
+  - dotnet restore .\templates
   - dotnet pack .\templates\templates.csproj -o .\artifacts\ --no-build
 deploy_script:
   - ps: dotnet nuget push artifacts\**\*.nupkg -k $env:NugetApiKey
