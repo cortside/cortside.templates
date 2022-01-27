@@ -1,8 +1,8 @@
 ﻿[cmdletBinding()]
 Param()
 
-Push-Location "$PSScriptRoot/src/Acme.WebApiStarter.Api.WebApi"
+Push-Location "$PSScriptRoot/src/Acme.WebApiStarter.WebApi"
 
-cmd /c start cmd /k "title Rebate.Api Api & dotnet run"
+cmd /c start cmd /k "title Acme.WebApiStarter.WebApi & dotnet run"
 
 Pop-Location

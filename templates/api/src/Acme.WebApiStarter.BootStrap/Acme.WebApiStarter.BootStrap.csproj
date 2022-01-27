@@ -7,7 +7,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Cortside.Common.BootStrap" Version="1.1.209-develop" />
+    <PackageReference Include="Cortside.Common.BootStrap" Version="1.1.213-develop" />
     <PackageReference Include="Cortside.DomainEvent" Version="1.1.159" />
     <PackageReference Include="Cortside.DomainEvent.EntityFramework" Version="1.1.159" />
     <PackageReference Include="Cortside.Health" Version="1.0.46" />
