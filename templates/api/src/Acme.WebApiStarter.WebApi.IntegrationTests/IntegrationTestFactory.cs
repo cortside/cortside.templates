@@ -96,7 +96,7 @@ namespace Acme.WebApiStarter.WebApi.IntegrationTests {
                         };
                         var useInMemory = bool.Parse(Configuration["IntegrationTestFactory:InMemoryDatabase"]);
                         if (useInMemory) {
-                            tasks.Add(RegisterDbContext(sc));
+                            tasks.Add(RegisterDbContextAsync(sc));
                             RegisterFileSystemDistributedLock(sc);
                         }
                         RegisterDomainEventPublisher(sc);
@@ -129,7 +129,7 @@ namespace Acme.WebApiStarter.WebApi.IntegrationTests {
                  .Build();
         }
 
-        private async Task RegisterDbContext(IServiceCollection services) {
+        private async Task RegisterDbContextAsync(IServiceCollection services) {
             // Remove the app's DbContext registration.
             var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<DatabaseContext>));
             if (descriptor != null) {
@@ -161,7 +161,7 @@ namespace Acme.WebApiStarter.WebApi.IntegrationTests {
             db.Database.EnsureCreated();
 
             try {
-                await DatabaseFixture.SeedInMemoryDb(db);
+                await DatabaseFixture.SeedInMemoryDbAsync(db);
                 if (!await db.Subjects.AnyAsync()) {
                     throw new DbUpdateException();
                 }
