@@ -172,14 +172,14 @@ if ($suffix){
 }
 
 # copy generated build.json to needed applications
-cp .\src\build.json .\src\Cortside.WebApiStarter.WebApi\build.json -force
+#cp .\src\build.json .\src\Cortside.WebApiStarter.WebApi\build.json -force
 
 # build
-$args = "clean $PSScriptRoot\src\Cortside.WebApiStarter.sln"
+$args = "clean $PSScriptRoot\src"
 Invoke-Exe -cmd dotnet -args $args
-$args = "restore $PSScriptRoot\src\Cortside.WebApiStarter.sln --packages $PSScriptRoot\src\packages"
+$args = "restore $PSScriptRoot\src --packages $PSScriptRoot\src\packages"
 Invoke-Exe -cmd dotnet -args $args
-$args = "build $PSScriptRoot\src\Cortside.WebApiStarter.sln --no-restore --configuration $msbuildconfig /p:Version=$BuildNumber"
+$args = "build $PSScriptRoot\src --no-restore --configuration $msbuildconfig /p:Version=$BuildNumber"
 Invoke-Exe -cmd dotnet -args $args
-$args = "publish $PSScriptRoot\src\Cortside.WebApiStarter.WebApi\Cortside.WebApiStarter.WebApi.csproj --no-restore /p:Version=$BuildNumber"
-Invoke-Exe -cmd dotnet -args $args
+#$args = "publish $PSScriptRoot\src\Acme.WebApiStarter.WebApi\Cortside.WebApiStarter.WebApi.csproj --no-restore /p:Version=$BuildNumber"
+#Invoke-Exe -cmd dotnet -args $args
