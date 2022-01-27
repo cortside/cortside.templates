@@ -1,20 +1,16 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Acme.WebApiStarter.Data.Migrations
-{
-    public partial class initial : Migration
-    {
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
+namespace Acme.WebApiStarter.Data.Migrations {
+    public partial class initial : Migration {
+        protected override void Up(MigrationBuilder migrationBuilder) {
             migrationBuilder.EnsureSchema(
                 name: "dbo");
 
             migrationBuilder.CreateTable(
                 name: "Subject",
                 schema: "dbo",
-                columns: table => new
-                {
+                columns: table => new {
                     SubjectId = table.Column<Guid>(nullable: false),
                     Name = table.Column<string>(maxLength: 100, nullable: true),
                     GivenName = table.Column<string>(maxLength: 100, nullable: true),
@@ -22,16 +18,14 @@ namespace Acme.WebApiStarter.Data.Migrations
                     UserPrincipalName = table.Column<string>(maxLength: 100, nullable: true),
                     CreatedDate = table.Column<DateTime>(nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_Subject", x => x.SubjectId);
                 });
 
             migrationBuilder.CreateTable(
                 name: "Widget",
                 schema: "dbo",
-                columns: table => new
-                {
+                columns: table => new {
                     WidgetId = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CreatedDate = table.Column<DateTime>(nullable: false),
@@ -42,8 +36,7 @@ namespace Acme.WebApiStarter.Data.Migrations
                     Width = table.Column<int>(nullable: false),
                     Height = table.Column<int>(nullable: false)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_Widget", x => x.WidgetId);
                     table.ForeignKey(
                         name: "FK_Widget_Subject_CreateSubjectId",
@@ -72,8 +65,7 @@ namespace Acme.WebApiStarter.Data.Migrations
                 column: "LastModifiedSubjectId");
         }
 
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+        protected override void Down(MigrationBuilder migrationBuilder) {
             migrationBuilder.DropTable(
                 name: "Widget",
                 schema: "dbo");

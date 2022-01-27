@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using Cortside.Health.Models;
 using Acme.WebApiStarter.WebApi.Models.Responses;
+using Cortside.Health.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 

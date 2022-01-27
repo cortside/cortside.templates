@@ -1,10 +1,10 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Acme.WebApiStarter.DomainService;
 using Cortside.DomainEvent;
 using Cortside.DomainEvent.Events;
 using Cortside.DomainEvent.Handlers;
-using Acme.WebApiStarter.DomainService;
 using Medallion.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

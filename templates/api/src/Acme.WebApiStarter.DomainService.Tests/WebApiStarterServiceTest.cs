@@ -1,5 +1,5 @@
-using Cortside.DomainEvent;
 using Acme.WebApiStarter.Data;
+using Cortside.DomainEvent;
 using Moq;
 using Xunit.Abstractions;
 

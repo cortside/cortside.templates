@@ -1,9 +1,9 @@
+using Acme.WebApiStarter.Health;
 using Cortside.Common.BootStrap;
 using Cortside.Health;
 using Cortside.Health.Checks;
 using Cortside.Health.Models;
 using Cortside.Health.Recorders;
-using Acme.WebApiStarter.Health;
 using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
