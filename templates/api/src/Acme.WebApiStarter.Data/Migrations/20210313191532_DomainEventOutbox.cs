@@ -1,17 +1,13 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace Acme.WebApiStarter.Data.Migrations
-{
-    public partial class DomainEventOutbox : Migration
-    {
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
+namespace Acme.WebApiStarter.Data.Migrations {
+    public partial class DomainEventOutbox : Migration {
+        protected override void Up(MigrationBuilder migrationBuilder) {
             migrationBuilder.CreateTable(
                 name: "Outbox",
                 schema: "dbo",
-                columns: table => new
-                {
+                columns: table => new {
                     MessageId = table.Column<string>(maxLength: 36, nullable: false),
                     CorrelationId = table.Column<string>(maxLength: 36, nullable: true),
                     EventType = table.Column<string>(maxLength: 250, nullable: false),
@@ -24,8 +20,7 @@ namespace Acme.WebApiStarter.Data.Migrations
                     PublishedDate = table.Column<DateTime>(nullable: true),
                     LockId = table.Column<string>(maxLength: 36, nullable: true)
                 },
-                constraints: table =>
-                {
+                constraints: table => {
                     table.PrimaryKey("PK_Outbox", x => x.MessageId);
                 });
 
@@ -37,8 +32,7 @@ namespace Acme.WebApiStarter.Data.Migrations
                 .Annotation("SqlServer:Include", new[] { "EventType" });
         }
 
-        protected override void Down(MigrationBuilder migrationBuilder)
-        {
+        protected override void Down(MigrationBuilder migrationBuilder) {
             migrationBuilder.DropTable(
                 name: "Outbox",
                 schema: "dbo");

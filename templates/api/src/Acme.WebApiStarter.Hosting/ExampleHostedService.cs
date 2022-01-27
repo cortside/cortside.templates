@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
+using Acme.WebApiStarter.Configuration;
 using Cortside.Common.Correlation;
 using Cortside.Common.Hosting;
-using Acme.WebApiStarter.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Acme.WebApiStarter.Hosting {

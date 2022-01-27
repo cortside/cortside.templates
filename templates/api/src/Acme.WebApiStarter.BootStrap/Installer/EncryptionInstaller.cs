@@ -1,5 +1,5 @@
-﻿using Cortside.Common.BootStrap;
-using Acme.WebApiStarter.Configuration;
+﻿using Acme.WebApiStarter.Configuration;
+using Cortside.Common.BootStrap;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

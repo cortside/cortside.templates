@@ -1,7 +1,7 @@
 using System.Linq;
 using System.Reflection;
-using Cortside.Common.BootStrap;
 using Acme.WebApiStarter.DomainService;
+using Cortside.Common.BootStrap;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
