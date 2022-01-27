@@ -3,7 +3,7 @@ using Acme.WebApiStarter.Data;
 
 namespace Acme.WebApiStarter.WebApi.IntegrationTests.Helpers {
     public static class DatabaseFixture {
-        public static async Task SeedInMemoryDb(DatabaseContext dbContext) {
+        public static async Task SeedInMemoryDbAsync(DatabaseContext dbContext) {
             await dbContext.Subjects.SeedFromFileAsync(".\\SeedData\\Subject.csv");
             await dbContext.Widgets.SeedFromFileAsync(".\\SeedData\\Widget.csv");
 

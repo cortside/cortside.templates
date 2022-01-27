@@ -75,9 +75,7 @@ namespace Acme.WebApiStarter.WebApi {
             });
 
             services.AddResponseCaching();
-            services.AddResponseCompression(options => {
-                options.Providers.Add<GzipCompressionProvider>();
-            });
+            services.AddResponseCompression(options => options.Providers.Add<GzipCompressionProvider>());
 
             services.AddMemoryCache();
             services.AddDistributedMemoryCache();
@@ -117,14 +115,10 @@ namespace Acme.WebApiStarter.WebApi {
                 })
                 .PartManager.ApplicationParts.Add(new AssemblyPart(typeof(HealthController).Assembly));
 
-            services.AddRouting(options => {
-                options.LowercaseUrls = true;
-            });
+            services.AddRouting(options => options.LowercaseUrls = true);
 
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
-            services.AddScoped(sp => {
-                return sp.GetRequiredService<IUrlHelperFactory>().GetUrlHelper(sp.GetRequiredService<IActionContextAccessor>().ActionContext);
-            });
+            services.AddScoped(sp => sp.GetRequiredService<IUrlHelperFactory>().GetUrlHelper(sp.GetRequiredService<IActionContextAccessor>().ActionContext));
 
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
@@ -266,10 +260,7 @@ namespace Acme.WebApiStarter.WebApi {
             app.UseAuthentication();
             app.UseRouting();
             app.UseAuthorization();
-            app.UseEndpoints(
-                endpoints => {
-                    endpoints.MapControllers();
-                });
+            app.UseEndpoints(endpoints => endpoints.MapControllers());
         }
     }
 }
