@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AsyncAnalyzers" Version="1.1.7">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Cortside.Common.Messages" Version="3.0.338" />
+    <PackageReference Include="Cortside.Common.RestSharpClient" Version="3.0.338" />
+    <PackageReference Include="Cortside.Common.Correlation" Version="1.1.208" />
+    <PackageReference Include="Cortside.Common.Hosting" Version="1.1.208" />
+    <PackageReference Include="Cortside.DomainEvent.EntityFramework" Version="1.1.159" />
+    <PackageReference Include="Lindhart.Analyser.MissingAwaitWarning" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Polly" Version="7.2.3" />
+    <PackageReference Include="RestSharp" Version="106.15.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Acme.WebApiStarter.Exceptions\Acme.WebApiStarter.Exceptions.csproj" />
+  </ItemGroup>
+
+</Project>

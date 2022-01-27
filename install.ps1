@@ -1,1 +1,2 @@
-dotnet new --install .\bin\Debug\Cortside.Templates.1.0.0.nupkg
+dotnet new --uninstall cortside.templates
+dotnet new --install .\artifacts\Cortside.Templates.1.0.0.nupkg
