@@ -4,4 +4,4 @@ param(
 )
 
 dotnet tool update --global dotnet-outdated-tool
-dotnet outdated ./src --version-lock Major -u
+dotnet outdated ./src --version-lock Major --pre-release Never --upgrade
