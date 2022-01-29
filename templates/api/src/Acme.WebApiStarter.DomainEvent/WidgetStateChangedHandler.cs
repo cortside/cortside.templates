@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Acme.WebApiStarter.DomainService;
 using Cortside.DomainEvent;
@@ -12,7 +11,6 @@ using Newtonsoft.Json;
 using Serilog.Context;
 
 namespace Acme.WebApiStarter.DomainEvent {
-
     /// <summary>
     /// Handles domain event <see cref="WidgetStageChangedEvent"/>
     /// </summary>
@@ -46,7 +44,7 @@ namespace Acme.WebApiStarter.DomainEvent {
                         logger.LogDebug($"Acquired lock for {lockName}");
                         var entity = await service.GetWidgetAsync(@event.Data.WidgetId).ConfigureAwait(false);
                         // simulate more work with sleep
-                        Thread.Sleep(TimeSpan.FromSeconds(5));
+                        await Task.Delay(TimeSpan.FromSeconds(5));
                         logger.LogInformation($"widget was observed changing it's state with body: {JsonConvert.SerializeObject(@event.Data)} and entity: {JsonConvert.SerializeObject(entity)}");
                     }
                 }

@@ -9,7 +9,7 @@ namespace Acme.WebApiStarter.BootStrap.Installer {
     public class DbContextInstaller : IInstaller {
         public void Install(IServiceCollection services, IConfigurationRoot configuration) {
             services.AddDbContext<DatabaseContext>(opt => {
-                opt.UseSqlServer(configuration.GetSection("WebApiStarter").GetValue<string>("ConnectionString"),
+                opt.UseSqlServer(configuration.GetSection("Database").GetValue<string>("ConnectionString"),
                     sqlServerOptionsAction: sqlOptions => {
                         sqlOptions.EnableRetryOnFailure(
                             maxRetryCount: 2,

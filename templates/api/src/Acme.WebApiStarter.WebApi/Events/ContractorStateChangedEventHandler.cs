@@ -7,7 +7,7 @@
 //using Microsoft.Extensions.Logging;
 //using Serilog.Context;
 
-//namespace EnerBank.Rebate.WebApi.Events {
+//namespace Acme.WebApiStarter.WebApi.Events {
 //    /// <summary>
 //    /// Handles domain event <see cref="ContractorStateChangedEvent"/>
 //    /// </summary>

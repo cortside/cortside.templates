@@ -6,6 +6,7 @@ using Acme.WebApiStarter.Dto;
 using Acme.WebApiStarter.WebApi.Models.Requests;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Serilog.Context;
 
 namespace Acme.WebApiStarter.WebApi.Controllers {
     /// <summary>
@@ -80,15 +81,17 @@ namespace Acme.WebApiStarter.WebApi.Controllers {
         [ProducesResponseType(typeof(WidgetDto), 204)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> UpdateWidgetAsync(int id, WidgetRequest input) {
-            var dto = new WidgetDto() {
-                WidgetId = id,
-                Text = input.Text,
-                Width = input.Width,
-                Height = input.Height
-            };
+            using (LogContext.PushProperty("WidgetId", id)) {
+                var dto = new WidgetDto() {
+                    WidgetId = id,
+                    Text = input.Text,
+                    Width = input.Width,
+                    Height = input.Height
+                };
 
-            var widget = await service.UpdateWidgetAsync(dto).ConfigureAwait(false);
-            return StatusCode((int)HttpStatusCode.NoContent, widget);
+                var widget = await service.UpdateWidgetAsync(dto).ConfigureAwait(false);
+                return StatusCode((int)HttpStatusCode.NoContent, widget);
+            }
         }
 
         /// <summary>
@@ -100,8 +103,10 @@ namespace Acme.WebApiStarter.WebApi.Controllers {
         [ProducesResponseType(typeof(WidgetDto), 204)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> PublishWidgetStateChangedEventAsync(int id) {
-            await service.PublishWidgetStateChangedEventAsync(id).ConfigureAwait(false);
-            return StatusCode((int)HttpStatusCode.NoContent);
+            using (LogContext.PushProperty("WidgetId", id)) {
+                await service.PublishWidgetStateChangedEventAsync(id).ConfigureAwait(false);
+                return StatusCode((int)HttpStatusCode.NoContent);
+            }
         }
     }
 }

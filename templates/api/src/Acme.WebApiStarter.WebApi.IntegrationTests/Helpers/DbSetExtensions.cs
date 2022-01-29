@@ -20,7 +20,7 @@ namespace Acme.WebApiStarter.WebApi.IntegrationTests.Helpers {
         /// <param name="additionalMapping">Any additonal complex mappings required</param>
         public static async Task<List<T>> SeedFromFileAsync<T>(this DbSet<T> dbSet, string filename, params CsvColumnMapping<T>[] additionalMapping) where T : class {
             var data = DataFromFile(filename, additionalMapping);
-            await dbSet.AddRangeAsync(data);
+            await dbSet.AddRangeAsync(data).ConfigureAwait(false);
             return data;
         }
 

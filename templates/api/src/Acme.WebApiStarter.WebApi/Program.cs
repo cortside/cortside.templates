@@ -24,7 +24,7 @@ namespace Acme.WebApiStarter.WebApi {
             .SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: false)
             .AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: false)
-            .AddJsonFile("build.json", true, true)
+            .AddJsonFile("build.json", optional: true, reloadOnChange: false)
             .AddEnvironmentVariables()
             .Build();
 
@@ -56,8 +56,8 @@ namespace Acme.WebApiStarter.WebApi {
             CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
 
             try {
-                Log.Information("Starting {Service}");
-                Log.Information("ASPNETCORE environment = {Environment}");
+                Log.Information($"Starting {service}");
+                Log.Information($"ASPNETCORE environment = {Environment}");
 
                 var host = CreateHostBuilder(args, config).Build();
 

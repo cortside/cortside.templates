@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace EnerBank.Rebate.WebApi.Models {
+namespace Acme.WebApiStarter.WebApi.Models {
     /// <summary>
     /// List of results
     /// </summary>

@@ -4,12 +4,12 @@ using Acme.WebApiStarter.Data;
 namespace Acme.WebApiStarter.WebApi.IntegrationTests.Helpers {
     public static class DatabaseFixture {
         public static async Task SeedInMemoryDbAsync(DatabaseContext dbContext) {
-            await dbContext.Subjects.SeedFromFileAsync(".\\SeedData\\Subject.csv");
-            await dbContext.Widgets.SeedFromFileAsync(".\\SeedData\\Widget.csv");
+            await dbContext.Subjects.SeedFromFileAsync(".\\SeedData\\Subject.csv").ConfigureAwait(false);
+            await dbContext.Widgets.SeedFromFileAsync(".\\SeedData\\Widget.csv").ConfigureAwait(false);
 
             // cast to get base implementation
             //((DbContext)dbContext).SaveChanges(true);
-            await dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync().ConfigureAwait(false);
 
             //const int goodmanId = 1234500;
             //Random random = new Random();
