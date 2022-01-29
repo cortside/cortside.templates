@@ -22,4 +22,8 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Acme.WebApiStarter.Domain\Acme.WebApiStarter.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
