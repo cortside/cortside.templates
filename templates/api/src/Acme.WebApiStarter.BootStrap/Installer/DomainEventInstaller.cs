@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
+using Acme.DomainEvent.Events;
 using Acme.WebApiStarter.Data;
 using Acme.WebApiStarter.DomainEvent;
 using Cortside.Common.BootStrap;
 using Cortside.DomainEvent;
 using Cortside.DomainEvent.EntityFramework;
 using Cortside.DomainEvent.EntityFramework.Hosting;
-using Cortside.DomainEvent.Events;
 using Cortside.DomainEvent.Handlers;
 using Cortside.DomainEvent.Hosting;
 using Microsoft.Extensions.Configuration;

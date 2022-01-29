@@ -1,4 +1,4 @@
-namespace Cortside.DomainEvent.Events {
+namespace Acme.DomainEvent.Events {
 
     public class EmailEvent {
         public string Sender { get; set; }

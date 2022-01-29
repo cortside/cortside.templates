@@ -10,16 +10,16 @@ namespace Acme.WebApiStarter.WebApi.IntegrationTests.Helpers.Mocks {
     public class IdsMock : IWireMockBuilder {
         public void Configure(WireMockServer server) {
             var idsConfiguration = JsonConvert.DeserializeObject<IdsConfiguration>(File.ReadAllText(@"./Data/Ids/configuration.json"));
-            idsConfiguration.Authorization_endpoint = idsConfiguration.Authorization_endpoint.Replace("https://identityserver.k8s.cortside.com", server.Urls.First());
-            idsConfiguration.Issuer = idsConfiguration.Issuer.Replace("https://identityserver.k8s.cortside.com", server.Urls.First());
-            idsConfiguration.Jwks_uri = idsConfiguration.Jwks_uri.Replace("https://identityserver.k8s.cortside.com", server.Urls.First());
-            idsConfiguration.Token_endpoint = idsConfiguration.Token_endpoint.Replace("https://identityserver.k8s.cortside.com", server.Urls.First());
-            idsConfiguration.Userinfo_endpoint = idsConfiguration.Userinfo_endpoint.Replace("https://identityserver.k8s.cortside.com", server.Urls.First());
-            idsConfiguration.End_session_endpoint = idsConfiguration.End_session_endpoint.Replace("https://identityserver.k8s.cortside.com", server.Urls.First());
-            idsConfiguration.Check_session_iframe = idsConfiguration.Check_session_iframe.Replace("https://identityserver.k8s.cortside.com", server.Urls.First());
-            idsConfiguration.Revocation_endpoint = idsConfiguration.Revocation_endpoint.Replace("https://identityserver.k8s.cortside.com", server.Urls.First());
-            idsConfiguration.Introspection_endpoint = idsConfiguration.Introspection_endpoint.Replace("https://identityserver.k8s.cortside.com", server.Urls.First());
-            idsConfiguration.Device_authorization_endpoint = idsConfiguration.Device_authorization_endpoint.Replace("https://identityserver.k8s.cortside.com", server.Urls.First());
+            idsConfiguration.Authorization_endpoint = idsConfiguration.Authorization_endpoint.Replace("https://identityserver.cortside.com", server.Urls.First());
+            idsConfiguration.Issuer = idsConfiguration.Issuer.Replace("https://identityserver.cortside.com", server.Urls.First());
+            idsConfiguration.Jwks_uri = idsConfiguration.Jwks_uri.Replace("https://identityserver.cortside.com", server.Urls.First());
+            idsConfiguration.Token_endpoint = idsConfiguration.Token_endpoint.Replace("https://identityserver.cortside.com", server.Urls.First());
+            idsConfiguration.Userinfo_endpoint = idsConfiguration.Userinfo_endpoint.Replace("https://identityserver.cortside.com", server.Urls.First());
+            idsConfiguration.End_session_endpoint = idsConfiguration.End_session_endpoint.Replace("https://identityserver.cortside.com", server.Urls.First());
+            idsConfiguration.Check_session_iframe = idsConfiguration.Check_session_iframe.Replace("https://identityserver.cortside.com", server.Urls.First());
+            idsConfiguration.Revocation_endpoint = idsConfiguration.Revocation_endpoint.Replace("https://identityserver.cortside.com", server.Urls.First());
+            idsConfiguration.Introspection_endpoint = idsConfiguration.Introspection_endpoint.Replace("https://identityserver.cortside.com", server.Urls.First());
+            idsConfiguration.Device_authorization_endpoint = idsConfiguration.Device_authorization_endpoint.Replace("https://identityserver.cortside.com", server.Urls.First());
 
             var idsJwks = JsonConvert.DeserializeObject<IdsJwks>(File.ReadAllText("./Data/Ids/jwks.json"));
 

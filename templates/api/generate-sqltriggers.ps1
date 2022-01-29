@@ -16,7 +16,7 @@ start-sleep -Seconds 3
 $serverInstance = "localhost"
 
 if ($PSScriptRoot.Contains(' ')) { 
-    throw "Your working directory has a space in the path, which is not supported.  Wise up and move to C:\work\cortside.documents! And have a wonderful day. PS. Don't get *triggered*. ha ha... ha... ha.... I'll show myself out."
+    throw "Your working directory has a space in the path, which is not supported.  Wise up and move to C:\work\documents! And have a wonderful day. PS. Don't get *triggered*. ha ha... ha... ha.... I'll show myself out."
     exit
 }
 

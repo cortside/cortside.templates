@@ -1,8 +1,8 @@
 using System;
 using System.Threading.Tasks;
+using Acme.DomainEvent.Events;
 using Acme.WebApiStarter.DomainService;
 using Cortside.DomainEvent;
-using Cortside.DomainEvent.Events;
 using Cortside.DomainEvent.Handlers;
 using Medallion.Threading;
 using Microsoft.Extensions.DependencyInjection;
