@@ -9,18 +9,14 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Acme.WebApiStarter.WebApi.IntegrationTests.Tests {
-
     public class WidgetTest : IClassFixture<IntegrationTestFactory<Startup>> {
         private readonly IntegrationTestFactory<Startup> fixture;
-        private readonly ITestOutputHelper testOutputHelper;
         private readonly HttpClient testServerClient;
 
-        public WidgetTest(IntegrationTestFactory<Startup> fixture, ITestOutputHelper testOutputHelper) {
+        public WidgetTest(IntegrationTestFactory<Startup> fixture) {
             this.fixture = fixture;
-            this.testOutputHelper = testOutputHelper;
             testServerClient = fixture.CreateClient(new WebApplicationFactoryClientOptions {
                 AllowAutoRedirect = false
             });

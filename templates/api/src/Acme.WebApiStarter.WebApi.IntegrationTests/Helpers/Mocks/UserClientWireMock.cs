@@ -20,7 +20,7 @@ namespace Acme.WebApiStarter.WebApi.IntegrationTests.Helpers.Mocks {
                        .WithHeader("Content-Type", "application/json")
                        .WithBody(r => JsonConvert.SerializeObject(
                            new UserInfoResponse() {
-                               UserId = Guid.NewGuid().ToString(),
+                               UserId = Guid.NewGuid(),
                                FirstName = "first",
                                LastName = "last",
                                EmailAddress = "first@last.com"

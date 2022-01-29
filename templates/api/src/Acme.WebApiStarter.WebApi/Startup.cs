@@ -14,14 +14,8 @@ using Cortside.Common.Json;
 using Cortside.Common.Messages.Filters;
 using Cortside.Common.Security;
 using Cortside.DomainEvent.EntityFramework.Hosting;
-using Cortside.Health;
-using Cortside.Health.Checks;
 using Cortside.Health.Controllers;
-using Cortside.Health.Models;
-using Cortside.Health.Recorders;
 using IdentityServer4.AccessTokenValidation;
-using Microsoft.ApplicationInsights;
-using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -102,18 +96,17 @@ namespace Acme.WebApiStarter.WebApi {
                     Location = ResponseCacheLocation.Any
                 });
                 //https://stackoverflow.com/questions/55127637/globally-modelstate-validation-in-asp-net-core-mvc
-                //options.Filters.Add<MessageExceptionResponseFilter>();
                 options.Filters.Add<MessageExceptionResponseFilter>();
             })
-                .AddNewtonsoftJson(options => {
-                    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                    options.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
-                    options.SerializerSettings.Converters.Add(new StringEnumConverter(new CamelCaseNamingStrategy()));
-                    options.SerializerSettings.Converters.Add(isoConverter);
-                    options.SerializerSettings.Converters.Add(isoTimeSpanConverter);
-                })
-                .PartManager.ApplicationParts.Add(new AssemblyPart(typeof(HealthController).Assembly));
+            .AddNewtonsoftJson(options => {
+                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                options.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+                options.SerializerSettings.Converters.Add(new StringEnumConverter(new CamelCaseNamingStrategy()));
+                options.SerializerSettings.Converters.Add(isoConverter);
+                options.SerializerSettings.Converters.Add(isoTimeSpanConverter);
+            })
+            .PartManager.ApplicationParts.Add(new AssemblyPart(typeof(HealthController).Assembly));
 
             services.AddRouting(options => options.LowercaseUrls = true);
 
@@ -142,24 +135,24 @@ namespace Acme.WebApiStarter.WebApi {
             //services.AddOptions();
             //services.AddHttpContextAccessor();
 
-            // health checks
-            string instrumentationKey = Configuration["ApplicationInsights:InstrumentationKey"];
-            string endpointAddress = Configuration["ApplicationInsights:EndpointAddress"];
-            if (!string.IsNullOrEmpty(instrumentationKey) && !string.IsNullOrEmpty(endpointAddress)) {
-                TelemetryConfiguration telemetryConfiguration = new TelemetryConfiguration(instrumentationKey, new InMemoryChannel { EndpointAddress = endpointAddress });
-                TelemetryClient telemetryClient = new TelemetryClient(telemetryConfiguration);
-                services.AddSingleton(telemetryClient);
-                services.AddTransient<IAvailabilityRecorder, ApplicationInsightsRecorder>();
-            } else {
-                services.AddTransient<IAvailabilityRecorder, NullRecorder>();
-            }
+            //// health checks
+            //string instrumentationKey = Configuration["ApplicationInsights:InstrumentationKey"];
+            //string endpointAddress = Configuration["ApplicationInsights:EndpointAddress"];
+            //if (!string.IsNullOrEmpty(instrumentationKey) && !string.IsNullOrEmpty(endpointAddress)) {
+            //    TelemetryConfiguration telemetryConfiguration = new TelemetryConfiguration(instrumentationKey, new InMemoryChannel { EndpointAddress = endpointAddress });
+            //    TelemetryClient telemetryClient = new TelemetryClient(telemetryConfiguration);
+            //    services.AddSingleton(telemetryClient);
+            //    services.AddTransient<IAvailabilityRecorder, ApplicationInsightsRecorder>();
+            //} else {
+            //    services.AddTransient<IAvailabilityRecorder, NullRecorder>();
+            //}
 
-            services.AddSingleton(Configuration.GetSection("HealthCheckHostedService").Get<HealthCheckServiceConfiguration>());
-            services.AddSingleton(Configuration.GetSection("Build").Get<BuildModel>());
-            services.AddTransient<ICheckFactory, CheckFactory>();
-            services.AddTransient<UrlCheck>();
-            services.AddTransient<DbContextCheck>();
-            services.AddHostedService<HealthCheckHostedService>();
+            //services.AddSingleton(Configuration.GetSection("HealthCheckHostedService").Get<HealthCheckServiceConfiguration>());
+            //services.AddSingleton(Configuration.GetSection("Build").Get<BuildModel>());
+            //services.AddTransient<ICheckFactory, CheckFactory>();
+            //services.AddTransient<UrlCheck>();
+            //services.AddTransient<DbContextCheck>();
+            //services.AddHostedService<HealthCheckHostedService>();
             // for DbContextCheck
             //services.AddTransient<DbContext, DatabaseContext>();
 

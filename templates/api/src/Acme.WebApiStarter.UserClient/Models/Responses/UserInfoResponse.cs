@@ -3,9 +3,9 @@
 namespace Acme.WebApiStarter.UserClient.Models.Responses {
     public class UserInfoResponse {
         /// <summary>
-        /// User Id, May technically be a guid.
+        /// User Id
         /// </summary>
-        public string UserId { get; set; }
+        public Guid UserId { get; set; }
 
         /// <summary>
         /// Current status of user. Typically ACTIVE.

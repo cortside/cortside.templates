@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Acme.WebApiStarter.BootStrap.Installer {
     public class DistributedLockInstaller : IInstaller {
         public void Install(IServiceCollection services, IConfigurationRoot configuration) {
-            var connectionString = configuration.GetSection("WebApiStarter").GetValue<string>("ConnectionString");
+            var connectionString = configuration.GetSection("Database").GetValue<string>("ConnectionString");
             IDistributedLockProvider provider = new SqlDistributedSynchronizationProvider(connectionString);
             services.AddSingleton(provider);
         }

@@ -50,8 +50,9 @@ namespace Acme.WebApiStarter.WebApi.IntegrationTests {
                 .ConfigureBuilder<UserClientWireMock>();
 
             var section = Configuration.GetSection("HealthCheckHostedService");
-            section["Checks:1:Value"] = WireMockServer.WireMockUrl;
-            section["Checks:2:Value"] = WireMockServer.WireMockUrl;
+            section["Checks:1:Value"] = $"{WireMockServer.WireMockUrl}/api/health";
+            section["Checks:2:Value"] = $"{WireMockServer.WireMockUrl}/api/health";
+            section["Checks:4:Value"] = $"{WireMockServer.WireMockUrl}/api/health";
 
             var authConfig = Configuration.GetSection("IdentityServer");
             authConfig["Authority"] = WireMockServer.WireMockUrl;
@@ -101,7 +102,7 @@ namespace Acme.WebApiStarter.WebApi.IntegrationTests {
                         }
                         RegisterDomainEventPublisher(sc);
 
-                        await Task.WhenAll(tasks);
+                        await Task.WhenAll(tasks).ConfigureAwait(false);
                     });
                 });
         }
@@ -147,6 +148,7 @@ namespace Acme.WebApiStarter.WebApi.IntegrationTests {
                 options.EnableSensitiveDataLogging();
                 options.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning));
             });
+            services.AddScoped<DbContext>(provider => provider.GetService<DatabaseContext>());
 
             // Build the service provider.
             var sp = services.BuildServiceProvider();
@@ -158,11 +160,11 @@ namespace Acme.WebApiStarter.WebApi.IntegrationTests {
             var logger = scopedServices.GetRequiredService<ILogger<IntegrationTestFactory<TStartup>>>();
 
             // Ensure the database is created.
-            db.Database.EnsureCreated();
+            await db.Database.EnsureCreatedAsync();
 
             try {
-                await DatabaseFixture.SeedInMemoryDbAsync(db);
-                if (!await db.Subjects.AnyAsync()) {
+                await DatabaseFixture.SeedInMemoryDbAsync(db).ConfigureAwait(false);
+                if (!await db.Subjects.AnyAsync().ConfigureAwait(false)) {
                     throw new DbUpdateException();
                 }
             } catch (Exception ex) {

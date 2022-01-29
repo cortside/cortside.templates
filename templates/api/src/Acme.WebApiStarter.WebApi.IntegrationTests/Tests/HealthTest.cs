@@ -33,15 +33,16 @@ namespace Acme.WebApiStarter.WebApi.IntegrationTests.Tests {
             var timer = new Stopwatch();
             timer.Start();
             while (!success && timer.ElapsedMilliseconds < 30000) {
-                await Task.Delay(500);
+                await Task.Delay(500).ConfigureAwait(false);
                 response = await testServerClient.GetAsync("api/health").ConfigureAwait(false);
                 success = response.IsSuccessStatusCode;
             }
 
             //assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var respObj = JsonConvert.DeserializeObject<HealthModel>(await response.Content.ReadAsStringAsync());
-            Assert.True(respObj.Healthy);
+            var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var respObj = JsonConvert.DeserializeObject<HealthModel>(content);
+            Assert.True(respObj.Healthy, content);
         }
     }
 }

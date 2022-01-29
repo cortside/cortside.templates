@@ -2,31 +2,60 @@
 using System.Threading.Tasks;
 using Acme.WebApiStarter.Exceptions;
 using Acme.WebApiStarter.UserClient.Models.Responses;
-using Cortside.Common.RestSharpClient;
-using Cortside.Common.RestSharpClient.Services;
+using Cortside.RestSharpClient;
+using Cortside.RestSharpClient.Authenticators.OpenIDConnect;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using RestSharp;
-using RestSharp.Serialization.Json;
 
 namespace Acme.WebApiStarter.UserClient {
-    public class UserClient : BaseClient, IUserClient {
-        private readonly UserClientConfiguration userClientConfiguration;
+    public class UserClient : IDisposable, IUserClient {
+        private readonly RestSharpClient client;
+        private readonly ILogger<UserClient> logger;
 
-        public UserClient(UserClientConfiguration userClientConfiguration, ILogger<UserClient> logger)
-         : base(new JsonSerializer(), logger, userClientConfiguration.Authentication, userClientConfiguration.ServiceUrl, new InMemoryCache()) {
-            this.userClientConfiguration = userClientConfiguration;
+        public UserClient(UserClientConfiguration userClientConfiguration, ILogger<UserClient> logger) {
+            this.logger = logger;
+            var options = new RestClientOptions {
+                BaseUrl = new Uri(userClientConfiguration.ServiceUrl),
+                FollowRedirects = true
+            };
+            client = new RestSharpClient(options, logger) {
+                Authenticator = new OpenIDConnectAuthenticator(userClientConfiguration.Authentication),
+                Serializer = new JsonNetSerializer(),
+                Cache = new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()))
+            };
+        }
+
+        public UserClient(UserClientConfiguration userClientConfiguration, ILogger<UserClient> logger, RestClientOptions options) {
+            this.logger = logger;
+            client = new RestSharpClient(options, logger) {
+                Authenticator = new OpenIDConnectAuthenticator(userClientConfiguration.Authentication),
+                Serializer = new JsonNetSerializer(),
+                Cache = new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions()))
+            };
         }
 
         public async Task<UserInfoResponse> GetUserByIdAsync(Guid userId) {
             logger.LogInformation($"Getting User by ID: {userId}.");
-            IRestRequest request = new RestRequest($"/v1/users/{userId}", Method.GET);
+            RestRequest request = new RestRequest($"api/v1/users/{userId}", Method.Get);
             try {
-                var response = await GetAsync<UserInfoResponse>(request).ConfigureAwait(false);
-                return response;
+                var response = await client.GetAsync<UserInfoResponse>(request).ConfigureAwait(false);
+                return response.Data;
             } catch (Exception ex) {
                 logger.LogError($"Error contacting user api to retrieve user info for {userId}.");
                 throw new ExternalCommunicationFailureMessage($"Error contacting user api to retrieve user info for {userId}.", ex);
             }
+        }
+
+        public void Dispose() {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing) {
+            client?.Dispose();
         }
     }
 }

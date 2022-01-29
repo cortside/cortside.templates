@@ -1,13 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
-    <IsPackable>false</IsPackable>
-    <Configurations>Develop;Production;Staging;QA;Debug</Configurations>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="appsettings.integration.json" />
-    <None Remove="Cortside.WebApiStarter.WebApi.IntegrationTests.v3.ncrunchproject" />
     <None Remove="Cortside.WebApiStarter.WebApi.IntegrationTests.v3.ncrunchproject" />
   </ItemGroup>
   <ItemGroup>
@@ -35,7 +30,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="5.0.13" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.0.0" />
     <PackageReference Include="Moq" Version="4.16.1" />
-    <PackageReference Include="RestSharp" Version="106.15.0" />
+    <PackageReference Include="RestSharp" Version="107.1.2" />
     <PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
     <PackageReference Include="TeamCity.VSTest.TestAdapter" Version="1.0.32" />
     <PackageReference Include="WireMock.Net" Version="1.4.34" />
@@ -56,41 +51,14 @@
     <ProjectReference Include="..\Acme.WebApiStarter.WebApi\Acme.WebApiStarter.WebApi.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="Data\Ids\configuration.json">
+    <None Update="Data\Ids\*.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Data\Ids\jwks.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SeedData\Subject.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SeedData\subjects.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SeedData\Widget.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SeedData\widgets.csv">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="SeedData\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Data/Ids/configuration.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Data/Ids/jwks.json">
+    <None Update="SeedData\*.csv">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Helpers\Mocks\subjects.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="SeedData/Subject.csv">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
-
 </Project>

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 using Acme.WebApiStarter.UserClient.Models.Responses;
-using Cortside.Common.RestSharpClient.Models;
+using Cortside.RestSharpClient.Authenticators.OpenIDConnect;
 using Newtonsoft.Json;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
@@ -20,8 +20,7 @@ namespace Acme.WebApiStarter.UserClient.Tests.Mock {
 
         public void Configure() {
             var getUserUrl =
-            new Regex(
-                @"^\/api/v1/users\/([0-9A-Fa-f]{8}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{12})$");
+            new Regex(@"^\/api/v1/users\/([0-9A-Fa-f]{8}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{12})$");
             fluentMockServer
                .Given(
                    Request.Create().WithPath(p => getUserUrl.IsMatch(p)).UsingGet()
@@ -32,7 +31,7 @@ namespace Acme.WebApiStarter.UserClient.Tests.Mock {
                        .WithHeader("Content-Type", "application/json")
                        .WithBody(_ => JsonConvert.SerializeObject(
                            new UserInfoResponse() {
-                               UserId = Guid.NewGuid().ToString(),
+                               UserId = Guid.NewGuid(),
                                FirstName = "first",
                                LastName = "last",
                                EmailAddress = "first@last.com"
@@ -48,9 +47,9 @@ namespace Acme.WebApiStarter.UserClient.Tests.Mock {
                         .WithStatusCode(200)
                         .WithHeader("Content-Type", "application/json")
                         .WithBody(_ => JsonConvert.SerializeObject(
-                            new AuthenticationTokenResponse {
+                            new TokenResponse {
                                 AccessToken = "eyJhbGciOiJSUzI1NiIsImtpZCI6IjY1QjBCQTk2MUI0NDMwQUJDNTNCRUI5NkVDMjBDNzQ5OTdGMDMwMzJSUzI1NiIsInR5cCI6IkpXVCIsIng1dCI6IlpiQzZsaHRFTUt2Rk8tdVc3Q0RIU1pmd01ESSJ9.eyJuYmYiOjE2NDI3OTE3ODMsImV4cCI6MTY0MjgwOTc4MywiaXNzIjoiaHR0cHM6Ly9pZGVudGl0eXNlcnZlci5rOHMuZW5lcmJhbmsuY29tIiwiYXVkIjpbInRlcm1zY2FsY3VsYXRvci1hcGkiLCJodHRwczovL2lkZW50aXR5c2VydmVyLms4cy5lbmVyYmFuay5jb20vcmVzb3VyY2VzIl0sImNsaWVudF9pZCI6ImF1dG9tYXRpb24uc3lzdGVtMSIsInN1YiI6IjQ1OWI5NGJhLTEwMTUtNDJhNC05YzRkLTVjNThiZmZhM2E5YSIsImdyb3VwcyI6ImVjYmRhM2Y3LWQ2MjgtNGU1YS04NzljLWNmNmNhYWQyM2JhMSIsInN1YmplY3RfdHlwZSI6ImNsaWVudCIsImlhdCI6MTY0Mjc5MTc4Mywic2NvcGUiOlsidGVybXNjYWxjdWxhdG9yLWFwaSJdfQ.siCAaMAp6O9ZiWGM7c7b_U3gRkx-lb4IqfxxFyI5LBLPGB9bSHy6fl5PHaIIjs_VO0TnuVv7gjafqUTkVEbpJbf3pbQOdvzNzfGKTWgEn44dbiz0ROuDy2_qpGqAUlo1r5nkYcuDUtyLP5FsrmxSjUP0DlanuWNWSiqx5YVdzenGeLSFD59cCszZnmS2Q9KPV5MOkaUEJnd2D44UJIcccoEdRhSDkY8a6Fs03Iodf2bzvcb2mZ6aiRHhjTo2XvqiG0azLIX2W735eiSX52qoUB6ae6bDzGpEXeE3z3bRw5fomgy40XXyct64IRnIW_Hfk0ZmNyw1L51ZJwlYSF7OPA",
-                                ExpiresIn = "300",
+                                ExpiresIn = 300,
                                 TokenType = "Bearer"
                             }
                         ))
