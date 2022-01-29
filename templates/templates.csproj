@@ -8,10 +8,9 @@
     <Authors>Cortside</Authors>
     <Description>Templates from Cortside.</Description>
     <PackageTags>dotnet-new;templates;cortside</PackageTags>
-
+    <NoDefaultExcludes>true</NoDefaultExcludes>
 	<LangVersion>10.0</LangVersion>
     <TargetFramework>netstandard2.0</TargetFramework>
-
     <IncludeContentInPack>true</IncludeContentInPack>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <ContentTargetFolders>content</ContentTargetFolders>
