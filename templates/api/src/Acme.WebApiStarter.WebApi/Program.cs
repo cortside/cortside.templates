@@ -56,8 +56,8 @@ namespace Acme.WebApiStarter.WebApi {
             CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-US");
 
             try {
-                Log.Information($"Starting {service}");
-                Log.Information($"ASPNETCORE environment = {Environment}");
+                Log.Information("Starting {Service}");
+                Log.Information("ASPNETCORE environment = {Environment}");
 
                 var host = CreateHostBuilder(args, config).Build();
 
