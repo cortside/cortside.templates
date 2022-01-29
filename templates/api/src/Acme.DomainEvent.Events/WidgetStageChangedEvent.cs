@@ -1,6 +1,6 @@
 using System;
 
-namespace Cortside.DomainEvent.Events {
+namespace Acme.DomainEvent.Events {
     public class WidgetStageChangedEvent {
         public int WidgetId { get; set; }
 

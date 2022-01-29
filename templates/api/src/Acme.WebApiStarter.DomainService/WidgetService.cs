@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Acme.DomainEvent.Events;
 using Acme.WebApiStarter.Data;
 using Acme.WebApiStarter.Dto;
 using Cortside.DomainEvent;
-using Cortside.DomainEvent.Events;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
