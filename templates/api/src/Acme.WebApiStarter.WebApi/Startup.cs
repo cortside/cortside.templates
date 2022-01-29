@@ -138,43 +138,6 @@ namespace Acme.WebApiStarter.WebApi {
                     options.CacheDuration = TimeSpan.FromMinutes(10);
                 });
 
-            //services.AddOptions();
-            //services.AddHttpContextAccessor();
-
-            //// health checks
-            //string instrumentationKey = Configuration["ApplicationInsights:InstrumentationKey"];
-            //string endpointAddress = Configuration["ApplicationInsights:EndpointAddress"];
-            //if (!string.IsNullOrEmpty(instrumentationKey) && !string.IsNullOrEmpty(endpointAddress)) {
-            //    TelemetryConfiguration telemetryConfiguration = new TelemetryConfiguration(instrumentationKey, new InMemoryChannel { EndpointAddress = endpointAddress });
-            //    TelemetryClient telemetryClient = new TelemetryClient(telemetryConfiguration);
-            //    services.AddSingleton(telemetryClient);
-            //    services.AddTransient<IAvailabilityRecorder, ApplicationInsightsRecorder>();
-            //} else {
-            //    services.AddTransient<IAvailabilityRecorder, NullRecorder>();
-            //}
-
-            //services.AddSingleton(Configuration.GetSection("HealthCheckHostedService").Get<HealthCheckServiceConfiguration>());
-            //services.AddSingleton(Configuration.GetSection("Build").Get<BuildModel>());
-            //services.AddTransient<ICheckFactory, CheckFactory>();
-            //services.AddTransient<UrlCheck>();
-            //services.AddTransient<DbContextCheck>();
-            //services.AddHostedService<HealthCheckHostedService>();
-            // for DbContextCheck
-            //services.AddTransient<DbContext, DatabaseContext>();
-
-            //services.AddTransient<IDomainEventReceiver, DomainEventReceiver>();
-            //services.AddTransient<IDomainEventPublisher, DomainEventPublisher>();
-            //services.AddTransient<IDomainEventOutboxPublisher, DomainEventOutboxPublisher<DatabaseContext>>();
-            ////services.AddTransient<IDomainEventHandler<LoanStateChangedEvent>, LoanStateChangedEventHandler>();
-
-            //var receiverHostedServiceSettings = Configuration.GetSection("ReceiverHostedService").Get<ReceiverHostedServiceSettings>();
-            //receiverHostedServiceSettings.MessageTypes = new Dictionary<string, Type> {
-            //    //{typeof(LoanStateChangedEvent).FullName, typeof(LoanStateChangedEvent)},
-            //    //{typeof(ContractorStateChangedEvent).FullName, typeof(ContractorStateChangedEvent)},
-            //};
-            //services.AddSingleton<IHostedService, ReceiverHostedService>();
-            //services.AddSingleton(receiverHostedServiceSettings);
-
             services.AddSwaggerGen(c => {
                 c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Version = "v1", Title = "Acme.WebApiStarter API" });
                 //c.DescribeAllEnumsAsStrings();

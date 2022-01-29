@@ -28,7 +28,7 @@ dotnet_csproj:
   file_version: '{version}'  
 
 before_build:
-  - appveyor-retry dotnet restore src/Cortside.WebApiStarter.sln -v Minimal
+  - appveyor-retry dotnet restore src -v Minimal
   - set DNX_BUILD_VERSION=%APPVEYOR_BUILD_NUMBER%
 
 build:
@@ -51,10 +51,8 @@ nuget:
   
 test:
   assemblies:
-#    - '**\Cortside.SqlReportApi.Test.dll'
 
 deploy:
 - provider: NuGet
   api_key:
     secure: ObtpuUmk0xC2aZ3+pVBY1xARi6fM7LdzNqot5Cr8Iwoitol4oElmDnU9SNGkD+3w
-

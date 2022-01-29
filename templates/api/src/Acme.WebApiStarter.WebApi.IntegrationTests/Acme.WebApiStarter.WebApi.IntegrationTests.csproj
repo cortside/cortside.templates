@@ -3,7 +3,7 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="Cortside.WebApiStarter.WebApi.IntegrationTests.v3.ncrunchproject" />
+    <None Remove="Acme.WebApiStarter.WebApi.IntegrationTests.v3.ncrunchproject" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="appsettings.integration.json">
