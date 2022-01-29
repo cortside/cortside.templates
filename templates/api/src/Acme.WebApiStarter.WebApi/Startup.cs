@@ -69,7 +69,9 @@ namespace Acme.WebApiStarter.WebApi {
             });
 
             services.AddResponseCaching();
-            services.AddResponseCompression(options => options.Providers.Add<GzipCompressionProvider>());
+            services.AddResponseCompression(options => {
+                options.Providers.Add<GzipCompressionProvider>();
+            });
 
             services.AddMemoryCache();
             services.AddDistributedMemoryCache();
@@ -108,10 +110,14 @@ namespace Acme.WebApiStarter.WebApi {
             })
             .PartManager.ApplicationParts.Add(new AssemblyPart(typeof(HealthController).Assembly));
 
-            services.AddRouting(options => options.LowercaseUrls = true);
+            services.AddRouting(options => {
+                options.LowercaseUrls = true;
+            });
 
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
-            services.AddScoped(sp => sp.GetRequiredService<IUrlHelperFactory>().GetUrlHelper(sp.GetRequiredService<IActionContextAccessor>().ActionContext));
+            services.AddScoped(sp => {
+                return sp.GetRequiredService<IUrlHelperFactory>().GetUrlHelper(sp.GetRequiredService<IActionContextAccessor>().ActionContext);
+            });
 
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
@@ -170,7 +176,7 @@ namespace Acme.WebApiStarter.WebApi {
             //services.AddSingleton(receiverHostedServiceSettings);
 
             services.AddSwaggerGen(c => {
-                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Version = "v1", Title = "WebApiStarter API" });
+                c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo { Version = "v1", Title = "Acme.WebApiStarter API" });
                 //c.DescribeAllEnumsAsStrings();
 
                 // Set the comments path for the Swagger JSON and UI.

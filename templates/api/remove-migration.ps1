@@ -2,7 +2,7 @@
 param(
 )
 
-$repo = "Cortside.WebApiStarter"
+$repo = "Acme.WebApiStarter"
 $project = "src/$repo.Data"
 $startup = "src/$repo.WebApi"
 $context = "DatabaseContext"
