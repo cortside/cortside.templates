@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Acme.WebApiStarter.WebApi.Models.Requests;
 using FluentAssertions;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Newtonsoft.Json;
 using Xunit;
 
@@ -17,18 +16,16 @@ namespace Acme.WebApiStarter.WebApi.IntegrationTests.Tests {
 
         public WidgetTest(IntegrationTestFactory<Startup> fixture) {
             this.fixture = fixture;
-            testServerClient = fixture.CreateClient(new WebApplicationFactoryClientOptions {
-                AllowAutoRedirect = false
-            });
+            testServerClient = fixture.CreateAuthorizedClient("api");
         }
 
         [Fact]
         public async Task ShouldCreateWidgetAsync() {
             //arrange
-            var request = new WidgetRequest() {
-                Text = Guid.NewGuid().ToString(),
-                Width = 100,
-                Height = 100
+            var request = new CustomerRequest() {
+                FirstName = Guid.NewGuid().ToString(),
+                LastName = "last",
+                Email = "email"
             };
 
             var requestBody = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
@@ -44,7 +41,7 @@ namespace Acme.WebApiStarter.WebApi.IntegrationTests.Tests {
         public async Task ShouldGetWidgetAsync() {
             //arrange
             var db = fixture.NewScopedDbContext();
-            var id = db.Widgets.First().WidgetId;
+            var id = db.Customers.First().CustomerId;
 
             //act
             var response = await testServerClient.GetAsync($"api/v1/widgets/{id}").ConfigureAwait(false);

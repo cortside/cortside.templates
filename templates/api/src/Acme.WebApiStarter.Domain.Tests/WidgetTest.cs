@@ -5,13 +5,13 @@ namespace Acme.WebApiStarter.Domain.Tests {
         [Fact]
         public void Foo() {
             // Arrange
-            var widget = new Widget();
+            var widget = new Customer();
 
             // Act
-            widget.WidgetId = 1;
+            widget.CustomerId = 1;
 
             // Assert
-            Assert.Equal(1, widget.WidgetId);
+            Assert.Equal(1, widget.CustomerId);
         }
     }
 }

@@ -16,14 +16,14 @@ namespace Acme.WebApiStarter.WebApi.Controllers {
     [Produces("application/json")]
     [ApiController]
     [Route("api/v1/widgets")]
-    public class WidgetController : Controller {
+    public class CustomerController : Controller {
         private readonly ILogger logger;
-        private readonly IWidgetService service;
+        private readonly ICustomerService service;
 
         /// <summary>
         /// Initializes a new instance of the WidgetController
         /// </summary>
-        public WidgetController(ILogger<WidgetController> logger, IWidgetService service) {
+        public CustomerController(ILogger<CustomerController> logger, ICustomerService service) {
             this.logger = logger;
             this.service = service;
         }
@@ -33,7 +33,7 @@ namespace Acme.WebApiStarter.WebApi.Controllers {
         /// </summary>
         [HttpGet("")]
         //[Authorize(Constants.Authorization.Permissions.GetWidgets)]
-        [ProducesResponseType(typeof(List<WidgetDto>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(List<CustomerDto>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetWidgetsAsync() {
             var widgets = await service.GetWidgetsAsync().ConfigureAwait(false);
@@ -47,7 +47,7 @@ namespace Acme.WebApiStarter.WebApi.Controllers {
         [HttpGet("{id}")]
         [ActionName(nameof(GetWidgetAsync))]
         //[Authorize(Constants.Authorization.Permissions.GetWidget)]
-        [ProducesResponseType(typeof(WidgetDto), 200)]
+        [ProducesResponseType(typeof(CustomerDto), 200)]
         public async Task<IActionResult> GetWidgetAsync(int id) {
             var widget = await service.GetWidgetAsync(id).ConfigureAwait(false);
             return Ok(widget);
@@ -59,16 +59,16 @@ namespace Acme.WebApiStarter.WebApi.Controllers {
         /// <param name="input"></param>
         [HttpPost("")]
         //[Authorize(Constants.Authorization.Permissions.CreateWidget)]
-        [ProducesResponseType(typeof(WidgetDto), 201)]
+        [ProducesResponseType(typeof(CustomerDto), 201)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> CreateWidgetAsync([FromBody] WidgetRequest input) {
-            var dto = new WidgetDto() {
-                Text = input.Text,
-                Width = input.Width,
-                Height = input.Height
+        public async Task<IActionResult> CreateWidgetAsync([FromBody] CustomerRequest input) {
+            var dto = new CustomerDto() {
+                FirstName = input.FirstName,
+                LastName = input.LastName,
+                Email = input.Email
             };
             var widget = await service.CreateWidgetAsync(dto).ConfigureAwait(false);
-            return CreatedAtAction(nameof(GetWidgetAsync), new { id = widget.WidgetId }, widget);
+            return CreatedAtAction(nameof(GetWidgetAsync), new { id = widget.CustomerId }, widget);
         }
 
         /// <summary>
@@ -78,15 +78,15 @@ namespace Acme.WebApiStarter.WebApi.Controllers {
         /// <param name="input"></param>
         [HttpPut("{id}")]
         //[Authorize(Constants.Authorization.Permissions.UpdateWidget)]
-        [ProducesResponseType(typeof(WidgetDto), 204)]
+        [ProducesResponseType(typeof(CustomerDto), 204)]
         [ProducesResponseType(400)]
-        public async Task<IActionResult> UpdateWidgetAsync(int id, WidgetRequest input) {
+        public async Task<IActionResult> UpdateWidgetAsync(int id, CustomerRequest input) {
             using (LogContext.PushProperty("WidgetId", id)) {
-                var dto = new WidgetDto() {
-                    WidgetId = id,
-                    Text = input.Text,
-                    Width = input.Width,
-                    Height = input.Height
+                var dto = new CustomerDto() {
+                    CustomerId = id,
+                    FirstName = input.FirstName,
+                    LastName = input.LastName,
+                    Email = input.Email
                 };
 
                 var widget = await service.UpdateWidgetAsync(dto).ConfigureAwait(false);
@@ -100,7 +100,7 @@ namespace Acme.WebApiStarter.WebApi.Controllers {
         /// <param name="id"></param>
         [HttpPost("{id}/publish")]
         //[Authorize(Constants.Authorization.Permissions.UpdateWidget)]
-        [ProducesResponseType(typeof(WidgetDto), 204)]
+        [ProducesResponseType(typeof(CustomerDto), 204)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> PublishWidgetStateChangedEventAsync(int id) {
             using (LogContext.PushProperty("WidgetId", id)) {

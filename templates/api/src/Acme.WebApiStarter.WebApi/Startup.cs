@@ -150,17 +150,17 @@ namespace Acme.WebApiStarter.WebApi {
             services.AddSwaggerGenNewtonsoftSupport();
 
             services.AddAutoMapper(typeof(Startup).Assembly);
-            services.AddSingleton<IUserClient, UserClient.UserClient>();
+            services.AddScoped<IUserClient, UserClient.UserClient>();
             var userClientConfiguration = Configuration.GetSection("UserApi").Get<UserClientConfiguration>();
             services.AddSingleton(userClientConfiguration);
             services.AddPolicyServerRuntimeClient(Configuration.GetSection("PolicyServer"))
                 .AddAuthorizationPermissionPolicies();
-            services.AddTransient<ISubjectService, SubjectService>();
+            services.AddScoped<ISubjectService, SubjectService>();
 
             // TODO: move to IServiceCollectionExtensions method
             services.AddOptions();
             services.AddHttpContextAccessor();
-            services.AddTransient<ISubjectPrincipal, SubjectPrincipal>((sp) => {
+            services.AddScoped<ISubjectPrincipal, SubjectPrincipal>((sp) => {
                 var httpContextAccessor = sp.GetRequiredService<IHttpContextAccessor>();
 
                 // when there is no httpcontext available, assume that subject is the "service" itself

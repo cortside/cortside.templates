@@ -16,7 +16,7 @@ namespace Acme.WebApiStarter.BootStrap.Installer {
                     && x.GetInterfaces().Any())
                 .ToList().ForEach(x => {
                     x.GetInterfaces().ToList()
-                        .ForEach(i => services.AddSingleton(i, x));
+                        .ForEach(i => services.AddScoped(i, x));
                 });
 
             // register domain services
@@ -27,7 +27,7 @@ namespace Acme.WebApiStarter.BootStrap.Installer {
                     && x.GetInterfaces().Any())
                 .ToList().ForEach(x => {
                     x.GetInterfaces().ToList()
-                        .ForEach(i => services.AddSingleton(i, x));
+                        .ForEach(i => services.AddScoped(i, x));
                 });
         }
     }

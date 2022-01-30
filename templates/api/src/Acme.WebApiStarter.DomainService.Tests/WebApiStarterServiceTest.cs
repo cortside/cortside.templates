@@ -4,7 +4,7 @@ using Moq;
 using Xunit.Abstractions;
 
 namespace Acme.WebApiStarter.DomainService.Tests {
-    public class WebApiStartererviceTest : DomainServiceTest<IWidgetService> {
+    public class WebApiStartererviceTest : DomainServiceTest<ICustomerService> {
         private readonly DatabaseContext databaseContext;
         private readonly Mock<IDomainEventPublisher> domainEventPublisherMock;
         private readonly ITestOutputHelper testOutputHelper;
