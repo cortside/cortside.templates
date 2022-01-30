@@ -9,22 +9,22 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Acme.WebApiStarter.DomainService {
-    public class WidgetService : IWidgetService {
+    public class CustomerService : ICustomerService {
         private readonly DatabaseContext db;
         private readonly IDomainEventOutboxPublisher publisher;
-        private readonly ILogger<WidgetService> logger;
+        private readonly ILogger<CustomerService> logger;
 
-        public WidgetService(DatabaseContext db, IDomainEventOutboxPublisher publisher, ILogger<WidgetService> logger) {
+        public CustomerService(DatabaseContext db, IDomainEventOutboxPublisher publisher, ILogger<CustomerService> logger) {
             this.db = db;
             this.publisher = publisher;
             this.logger = logger;
         }
 
-        public async Task<WidgetDto> CreateWidgetAsync(WidgetDto dto) {
-            var entity = new Domain.Widget() {
-                Text = dto.Text,
-                Width = dto.Width,
-                Height = dto.Height
+        public async Task<CustomerDto> CreateWidgetAsync(CustomerDto dto) {
+            var entity = new Domain.Customer() {
+                FirstName = dto.FirstName,
+                LastName = dto.LastName,
+                Email = dto.Email
             };
 
             // user initiated transaction with retry strategy set needs to execute in new strategy 
@@ -33,9 +33,9 @@ namespace Acme.WebApiStarter.DomainService {
                 // need a transaction and 2 savechanges so that I have the id for the widget in the event
                 using (var tx = await db.Database.BeginTransactionAsync().ConfigureAwait(false)) {
                     try {
-                        db.Widgets.Add(entity);
+                        db.Customers.Add(entity);
                         await db.SaveChangesAsync().ConfigureAwait(false);
-                        var @event = new WidgetStageChangedEvent() { WidgetId = entity.WidgetId, Text = entity.Text, Width = entity.Width, Height = entity.Height, Timestamp = DateTime.UtcNow };
+                        var @event = new CustomerStageChangedEvent() { CustomerId = entity.CustomerId, FirstName = entity.LastName, LastName = entity.FirstName, Email = entity.Email, Timestamp = DateTime.UtcNow };
                         await publisher.PublishAsync(@event).ConfigureAwait(false);
                         await db.SaveChangesAsync().ConfigureAwait(false);
                         await tx.CommitAsync().ConfigureAwait(false);
@@ -50,19 +50,19 @@ namespace Acme.WebApiStarter.DomainService {
             return ToWidgetDto(entity);
         }
 
-        public Task<WidgetDto> DeleteWidgetAsync(int widgetId) {
+        public Task<CustomerDto> DeleteWidgetAsync(int widgetId) {
             throw new NotImplementedException();
         }
 
-        public async Task<WidgetDto> GetWidgetAsync(int widgetId) {
-            var entity = await db.Widgets.SingleAsync(x => x.WidgetId == widgetId).ConfigureAwait(false);
+        public async Task<CustomerDto> GetWidgetAsync(int widgetId) {
+            var entity = await db.Customers.SingleAsync(x => x.CustomerId == widgetId).ConfigureAwait(false);
             return ToWidgetDto(entity);
         }
 
-        public async Task<List<WidgetDto>> GetWidgetsAsync() {
-            var entities = await db.Widgets.ToListAsync().ConfigureAwait(false);
+        public async Task<List<CustomerDto>> GetWidgetsAsync() {
+            var entities = await db.Customers.ToListAsync().ConfigureAwait(false);
 
-            var dtos = new List<WidgetDto>();
+            var dtos = new List<CustomerDto>();
             foreach (var entity in entities) {
                 dtos.Add(ToWidgetDto(entity));
             }
@@ -70,13 +70,13 @@ namespace Acme.WebApiStarter.DomainService {
             return dtos;
         }
 
-        public async Task<WidgetDto> UpdateWidgetAsync(WidgetDto dto) {
-            var entity = await db.Widgets.FirstOrDefaultAsync(w => w.WidgetId == dto.WidgetId).ConfigureAwait(false);
-            entity.Text = dto.Text;
-            entity.Width = dto.Width;
-            entity.Height = dto.Height;
+        public async Task<CustomerDto> UpdateWidgetAsync(CustomerDto dto) {
+            var entity = await db.Customers.FirstOrDefaultAsync(w => w.CustomerId == dto.CustomerId).ConfigureAwait(false);
+            entity.FirstName = dto.FirstName;
+            entity.LastName = dto.LastName;
+            entity.Email = dto.Email;
 
-            var @event = new WidgetStageChangedEvent() { WidgetId = entity.WidgetId, Text = entity.Text, Width = entity.Width, Height = entity.Height, Timestamp = DateTime.UtcNow };
+            var @event = new CustomerStageChangedEvent() { CustomerId = entity.CustomerId, FirstName = entity.FirstName, LastName = entity.LastName, Email = entity.Email, Timestamp = DateTime.UtcNow };
             await publisher.PublishAsync(@event).ConfigureAwait(false);
 
             await db.SaveChangesAsync().ConfigureAwait(false);
@@ -84,19 +84,19 @@ namespace Acme.WebApiStarter.DomainService {
         }
 
         public async Task PublishWidgetStateChangedEventAsync(int id) {
-            var entity = await db.Widgets.FirstOrDefaultAsync(w => w.WidgetId == id).ConfigureAwait(false);
+            var entity = await db.Customers.FirstOrDefaultAsync(w => w.CustomerId == id).ConfigureAwait(false);
 
-            var @event = new WidgetStageChangedEvent() { WidgetId = entity.WidgetId, Text = entity.Text, Width = entity.Width, Height = entity.Height, Timestamp = DateTime.UtcNow };
+            var @event = new CustomerStageChangedEvent() { CustomerId = entity.CustomerId, FirstName = entity.FirstName, LastName = entity.LastName, Email = entity.Email, Timestamp = DateTime.UtcNow };
             await publisher.PublishAsync(@event).ConfigureAwait(false);
             await db.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        private WidgetDto ToWidgetDto(Domain.Widget entity) {
-            return new WidgetDto() {
-                WidgetId = entity.WidgetId,
-                Text = entity.Text,
-                Width = entity.Width,
-                Height = entity.Height
+        private CustomerDto ToWidgetDto(Domain.Customer entity) {
+            return new CustomerDto() {
+                CustomerId = entity.CustomerId,
+                FirstName = entity.FirstName,
+                LastName = entity.LastName,
+                Email = entity.Email
             };
         }
     }

@@ -40,7 +40,7 @@ namespace Acme.WebApiStarter.WebApi.Data {
 
             var builder = new DbContextOptionsBuilder<DatabaseContext>();
 
-            var connectionString = configuration.GetSection("WebApiStarter").GetValue<string>("ConnectionString");
+            var connectionString = configuration.GetSection("Database").GetValue<string>("ConnectionString");
 
             builder.UseSqlServer(connectionString);
 

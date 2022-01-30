@@ -43,12 +43,12 @@ namespace Acme.WebApiStarter.BootStrap.Installer {
             // Register Hosted Services
             services.AddTransient<IDomainEventPublisher, DomainEventPublisher>();
             services.AddTransient<IDomainEventOutboxPublisher, DomainEventOutboxPublisher<DatabaseContext>>();
-            services.AddTransient<IDomainEventHandler<WidgetStageChangedEvent>, WidgetStateChangedHandler>();
+            services.AddTransient<IDomainEventHandler<CustomerStageChangedEvent>, WidgetStateChangedHandler>();
             services.AddSingleton<IDomainEventReceiver, DomainEventReceiver>();
 
             var receiverHostedServiceSettings = configuration.GetSection("ReceiverHostedService").Get<ReceiverHostedServiceSettings>();
             receiverHostedServiceSettings.MessageTypes = new Dictionary<string, Type> {
-                { typeof(WidgetStageChangedEvent).FullName, typeof(WidgetStageChangedEvent) }
+                { typeof(CustomerStageChangedEvent).FullName, typeof(CustomerStageChangedEvent) }
             };
             services.AddSingleton(receiverHostedServiceSettings);
             services.AddHostedService<ReceiverHostedService>();

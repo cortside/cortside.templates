@@ -1,0 +1,14 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Acme.WebApiStarter.Domain {
+    [Table("OrderItem")]
+    public class OrderItem : AuditableEntity {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int OrderItemId { get; set; }
+        [StringLength(10)]
+        public string Sku { get; set; }
+        public int Quantity { get; set; }
+    }
+}
