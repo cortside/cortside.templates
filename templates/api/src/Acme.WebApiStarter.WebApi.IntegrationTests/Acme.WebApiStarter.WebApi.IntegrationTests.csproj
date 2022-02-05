@@ -52,7 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Acme.WebApiStarter.Data\Acme.WebApiStarter.Data.csproj" />
-    <ProjectReference Include="..\Acme.WebApiStarter.UserClient\Acme.WebApiStarter.UserClient.csproj" />
+    <ProjectReference Include="..\Acme.WebApiStarter.UserClient\Acme.WebApiStarter.Catalog.csproj" />
     <ProjectReference Include="..\Acme.WebApiStarter.WebApi\Acme.WebApiStarter.WebApi.csproj" />
   </ItemGroup>
   <ItemGroup>

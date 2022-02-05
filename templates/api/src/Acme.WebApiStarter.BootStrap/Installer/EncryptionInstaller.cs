@@ -1,4 +1,5 @@
 ﻿using Acme.WebApiStarter.Configuration;
+using Acme.WebApiStarter.DomainService;
 using Cortside.Common.BootStrap;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,6 +9,8 @@ namespace Acme.WebApiStarter.BootStrap.Installer {
         public void Install(IServiceCollection services, IConfigurationRoot configuration) {
             var config = configuration.GetSection("Encryption").Get<EncryptionConfiguration>();
             services.AddSingleton(config);
+
+            services.AddSingleton<IEncryptionService, EncryptionService>();
         }
     }
 }

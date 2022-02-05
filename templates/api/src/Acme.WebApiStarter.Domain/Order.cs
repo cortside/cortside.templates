@@ -8,9 +8,11 @@ namespace Acme.WebApiStarter.Domain {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderId { get; set; }
-
-        public int CustomerId { get; set; }
+        public OrderStatus Status { get; set; }
+        [ForeignKey("CustomerId")]
         public Customer Customer { get; set; }
+        [ForeignKey("AddressId")]
+        public Address Address { get; set; }
 
         public List<OrderItem> Items { get; set; }
     }

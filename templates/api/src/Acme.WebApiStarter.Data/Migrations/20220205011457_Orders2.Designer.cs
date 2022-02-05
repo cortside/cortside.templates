@@ -4,6 +4,7 @@ using Acme.WebApiStarter.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Acme.WebApiStarter.Data.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20220205011457_Orders2")]
+    partial class Orders2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,18 +39,6 @@ namespace Acme.WebApiStarter.Data.Migrations
                     b.Property<string>("Country")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("CreateSubjectId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("LastModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("LastModifiedSubjectId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("State")
                         .HasColumnType("nvarchar(max)");
 
@@ -59,10 +49,6 @@ namespace Acme.WebApiStarter.Data.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("AddressId");
-
-                    b.HasIndex("CreateSubjectId");
-
-                    b.HasIndex("LastModifiedSubjectId");
 
                     b.ToTable("Address", "dbo");
                 });
@@ -291,25 +277,6 @@ namespace Acme.WebApiStarter.Data.Migrations
                         .HasDatabaseName("IX_Status_LockId_ScheduleDate");
 
                     b.ToTable("Outbox", "dbo");
-                });
-
-            modelBuilder.Entity("Acme.WebApiStarter.Domain.Address", b =>
-                {
-                    b.HasOne("Acme.WebApiStarter.Domain.Subject", "CreatedSubject")
-                        .WithMany()
-                        .HasForeignKey("CreateSubjectId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Acme.WebApiStarter.Domain.Subject", "LastModifiedSubject")
-                        .WithMany()
-                        .HasForeignKey("LastModifiedSubjectId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("CreatedSubject");
-
-                    b.Navigation("LastModifiedSubject");
                 });
 
             modelBuilder.Entity("Acme.WebApiStarter.Domain.Customer", b =>
