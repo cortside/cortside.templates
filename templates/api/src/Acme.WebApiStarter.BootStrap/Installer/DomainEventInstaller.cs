@@ -46,6 +46,8 @@ namespace Acme.WebApiStarter.BootStrap.Installer {
             services.AddTransient<IDomainEventHandler<CustomerStageChangedEvent>, WidgetStateChangedHandler>();
             services.AddSingleton<IDomainEventReceiver, DomainEventReceiver>();
 
+            //services.AddSingleton<IDomainEventHandler<ContractorStateChangedEvent>, ContractorStateChangedEventHandler>();
+
             var receiverHostedServiceSettings = configuration.GetSection("ReceiverHostedService").Get<ReceiverHostedServiceSettings>();
             receiverHostedServiceSettings.MessageTypes = new Dictionary<string, Type> {
                 { typeof(CustomerStageChangedEvent).FullName, typeof(CustomerStageChangedEvent) }

@@ -29,6 +29,8 @@ namespace Acme.WebApiStarter.BootStrap.Installer {
                     x.GetInterfaces().ToList()
                         .ForEach(i => services.AddScoped(i, x));
                 });
+
+            //services.AddScoped<ISubjectService, SubjectService>();
         }
     }
 }

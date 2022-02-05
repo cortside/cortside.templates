@@ -13,7 +13,8 @@ namespace Acme.WebApiStarter.BootStrap {
                 new DomainInstaller(),
                 new MiniProfilerInstaller(),
                 new DistributedLockInstaller(),
-                new EncryptionInstaller()
+                new EncryptionInstaller(),
+                new CatalogClientInstaller()
             };
         }
     }

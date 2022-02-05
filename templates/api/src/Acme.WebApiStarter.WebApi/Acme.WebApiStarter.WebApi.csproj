@@ -60,7 +60,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Acme.WebApiStarter.BootStrap\Acme.WebApiStarter.BootStrap.csproj" />
     <ProjectReference Include="..\Acme.WebApiStarter.DomainService\Acme.WebApiStarter.DomainService.csproj" />
-    <ProjectReference Include="..\Acme.WebApiStarter.UserClient\Acme.WebApiStarter.UserClient.csproj" />
+    <ProjectReference Include="..\Acme.WebApiStarter.UserClient\Acme.WebApiStarter.Catalog.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="appsettings.local.json">

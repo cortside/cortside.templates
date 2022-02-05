@@ -11,11 +11,11 @@ using Microsoft.Extensions.Options;
 using RestSharp;
 
 namespace Acme.WebApiStarter.UserClient {
-    public class UserClient : IDisposable, IUserClient {
+    public class CatalogClient : IDisposable, ICatalogClient {
         private readonly RestSharpClient client;
-        private readonly ILogger<UserClient> logger;
+        private readonly ILogger<CatalogClient> logger;
 
-        public UserClient(UserClientConfiguration userClientConfiguration, ILogger<UserClient> logger) {
+        public CatalogClient(CatalogClientConfiguration userClientConfiguration, ILogger<CatalogClient> logger) {
             this.logger = logger;
             var options = new RestClientOptions {
                 BaseUrl = new Uri(userClientConfiguration.ServiceUrl),
@@ -28,7 +28,7 @@ namespace Acme.WebApiStarter.UserClient {
             };
         }
 
-        public UserClient(UserClientConfiguration userClientConfiguration, ILogger<UserClient> logger, RestClientOptions options) {
+        public CatalogClient(CatalogClientConfiguration userClientConfiguration, ILogger<CatalogClient> logger, RestClientOptions options) {
             this.logger = logger;
             client = new RestSharpClient(options, logger) {
                 Authenticator = new OpenIDConnectAuthenticator(userClientConfiguration.Authentication),
@@ -37,11 +37,11 @@ namespace Acme.WebApiStarter.UserClient {
             };
         }
 
-        public async Task<UserInfoResponse> GetUserByIdAsync(Guid userId) {
+        public async Task<CatalogItemResponse> GetUserByIdAsync(Guid userId) {
             logger.LogInformation($"Getting User by ID: {userId}.");
             RestRequest request = new RestRequest($"api/v1/users/{userId}", Method.Get);
             try {
-                var response = await client.GetAsync<UserInfoResponse>(request).ConfigureAwait(false);
+                var response = await client.GetAsync<CatalogItemResponse>(request).ConfigureAwait(false);
                 return response.Data;
             } catch (Exception ex) {
                 logger.LogError($"Error contacting user api to retrieve user info for {userId}.");

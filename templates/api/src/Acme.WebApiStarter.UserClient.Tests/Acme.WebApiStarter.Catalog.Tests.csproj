@@ -28,6 +28,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Acme.WebApiStarter.UserClient\Acme.WebApiStarter.UserClient.csproj" />
+    <ProjectReference Include="..\Acme.WebApiStarter.UserClient\Acme.WebApiStarter.Catalog.csproj" />
   </ItemGroup>
 </Project>
