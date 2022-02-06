@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Acme.WebApiStarter.Data.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20220130045319_Orders")]
-    partial class Orders
+    [Migration("20220206171623_Initial")]
+    partial class Initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -24,6 +24,50 @@ namespace Acme.WebApiStarter.Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+
+            modelBuilder.Entity("Acme.WebApiStarter.Domain.Address", b =>
+                {
+                    b.Property<int>("AddressId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AddressId"), 1L, 1);
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("CreateSubjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("LastModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("LastModifiedSubjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("State")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Street")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ZipCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("AddressId");
+
+                    b.HasIndex("CreateSubjectId");
+
+                    b.HasIndex("LastModifiedSubjectId");
+
+                    b.ToTable("Address", "dbo");
+                });
 
             modelBuilder.Entity("Acme.WebApiStarter.Domain.Customer", b =>
                 {
@@ -74,13 +118,16 @@ namespace Acme.WebApiStarter.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderId"), 1L, 1);
 
+                    b.Property<int?>("AddressId")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("CreateSubjectId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("CustomerId")
+                    b.Property<int?>("CustomerId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("LastModifiedDate")
@@ -89,7 +136,13 @@ namespace Acme.WebApiStarter.Data.Migrations
                     b.Property<Guid>("LastModifiedSubjectId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(20)");
+
                     b.HasKey("OrderId");
+
+                    b.HasIndex("AddressId");
 
                     b.HasIndex("CreateSubjectId");
 
@@ -129,6 +182,9 @@ namespace Acme.WebApiStarter.Data.Migrations
                     b.Property<string>("Sku")
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("money");
 
                     b.HasKey("OrderItemId");
 
@@ -243,6 +299,25 @@ namespace Acme.WebApiStarter.Data.Migrations
                     b.ToTable("Outbox", "dbo");
                 });
 
+            modelBuilder.Entity("Acme.WebApiStarter.Domain.Address", b =>
+                {
+                    b.HasOne("Acme.WebApiStarter.Domain.Subject", "CreatedSubject")
+                        .WithMany()
+                        .HasForeignKey("CreateSubjectId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.HasOne("Acme.WebApiStarter.Domain.Subject", "LastModifiedSubject")
+                        .WithMany()
+                        .HasForeignKey("LastModifiedSubjectId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("CreatedSubject");
+
+                    b.Navigation("LastModifiedSubject");
+                });
+
             modelBuilder.Entity("Acme.WebApiStarter.Domain.Customer", b =>
                 {
                     b.HasOne("Acme.WebApiStarter.Domain.Subject", "CreatedSubject")
@@ -264,6 +339,11 @@ namespace Acme.WebApiStarter.Data.Migrations
 
             modelBuilder.Entity("Acme.WebApiStarter.Domain.Order", b =>
                 {
+                    b.HasOne("Acme.WebApiStarter.Domain.Address", "Address")
+                        .WithMany()
+                        .HasForeignKey("AddressId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
                     b.HasOne("Acme.WebApiStarter.Domain.Subject", "CreatedSubject")
                         .WithMany()
                         .HasForeignKey("CreateSubjectId")
@@ -273,14 +353,15 @@ namespace Acme.WebApiStarter.Data.Migrations
                     b.HasOne("Acme.WebApiStarter.Domain.Customer", "Customer")
                         .WithMany()
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.NoAction);
 
                     b.HasOne("Acme.WebApiStarter.Domain.Subject", "LastModifiedSubject")
                         .WithMany()
                         .HasForeignKey("LastModifiedSubjectId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+
+                    b.Navigation("Address");
 
                     b.Navigation("CreatedSubject");
 

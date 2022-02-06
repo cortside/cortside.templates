@@ -20,33 +20,6 @@ namespace Acme.WebApiStarter.Data {
 
         protected override void OnModelCreating(ModelBuilder modelBuilder) {
             modelBuilder.HasDefaultSchema("dbo");
-
-            //var types = modelBuilder.Model.GetEntityTypes().Where(x=>x.ClrType.IsAssignableFrom(typeof(AuditableEntity)));
-            //foreach (var t in types) {
-            //    t.BaseType.HasOne()
-            //}
-
-            //// TODO: foreach AuditableEntity
-            //modelBuilder.Entity<Customer>()
-            //    .HasOne(p => p.CreatedSubject);
-            //modelBuilder.Entity<Customer>()
-            //    .HasOne(p => p.LastModifiedSubject);
-            //modelBuilder.Entity<Order>()
-            //    .HasOne(p => p.CreatedSubject);
-            //modelBuilder.Entity<Order>()
-            //    .HasOne(p => p.LastModifiedSubject);
-            //modelBuilder.Entity<OrderItem>()
-            //    .HasOne(p => p.CreatedSubject);
-            //modelBuilder.Entity<OrderItem>()
-            //    .HasOne(p => p.LastModifiedSubject);
-
-            // TODO: foreach to do these
-            //var rebateStatusConverter = new EnumToStringConverter<RebateRequestStatus>();
-            //modelBuilder
-            //    .Entity<RebateRequest>()
-            //    .Property(e => e.Status)
-            //    .HasConversion(rebateStatusConverter);
-
             modelBuilder.AddDomainEventOutbox();
 
             SetDateTime(modelBuilder);

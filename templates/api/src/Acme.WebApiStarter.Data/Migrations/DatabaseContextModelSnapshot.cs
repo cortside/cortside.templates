@@ -134,8 +134,9 @@ namespace Acme.WebApiStarter.Data.Migrations
                     b.Property<Guid>("LastModifiedSubjectId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("OrderId");
 
@@ -179,6 +180,9 @@ namespace Acme.WebApiStarter.Data.Migrations
                     b.Property<string>("Sku")
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)");
+
+                    b.Property<decimal>("UnitPrice")
+                        .HasColumnType("money");
 
                     b.HasKey("OrderItemId");
 

@@ -10,5 +10,7 @@ namespace Acme.WebApiStarter.Domain {
         [StringLength(10)]
         public string Sku { get; set; }
         public int Quantity { get; set; }
+        [Column(TypeName = "money")]
+        public decimal UnitPrice { get; set; }
     }
 }
