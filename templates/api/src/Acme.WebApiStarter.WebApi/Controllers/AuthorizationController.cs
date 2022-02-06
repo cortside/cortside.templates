@@ -13,9 +13,10 @@ namespace Acme.WebApiStarter.WebApi.Controllers {
     /// <summary>
     /// provides resources from the policy server
     /// </summary>
-    [Route("api/v1/authorization")]
+    [Route("api/v{version:apiVersion}/authorization")]
     [ApiController]
     [ApiVersion("1")]
+    [ApiVersion("2")]
     [Produces("application/json")]
     [Authorize]
     public class AuthorizationController : ControllerBase {

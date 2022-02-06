@@ -8,7 +8,10 @@ namespace Acme.WebApiStarter.Domain {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int OrderId { get; set; }
+
+        [Column(TypeName = "nvarchar(20)")]
         public OrderStatus Status { get; set; }
+
         [ForeignKey("CustomerId")]
         public Customer Customer { get; set; }
         [ForeignKey("AddressId")]

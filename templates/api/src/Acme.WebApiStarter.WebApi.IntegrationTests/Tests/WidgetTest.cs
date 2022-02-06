@@ -31,7 +31,7 @@ namespace Acme.WebApiStarter.WebApi.IntegrationTests.Tests {
             var requestBody = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
 
             //act
-            var response = await testServerClient.PostAsync("/api/v1/widgets", requestBody).ConfigureAwait(false);
+            var response = await testServerClient.PostAsync("/api/v1/customers", requestBody).ConfigureAwait(false);
 
             //assert
             response.StatusCode.Should().Be(HttpStatusCode.Created);
@@ -44,7 +44,7 @@ namespace Acme.WebApiStarter.WebApi.IntegrationTests.Tests {
             var id = db.Customers.First().CustomerId;
 
             //act
-            var response = await testServerClient.GetAsync($"api/v1/widgets/{id}").ConfigureAwait(false);
+            var response = await testServerClient.GetAsync($"api/v1/customers/{id}").ConfigureAwait(false);
 
             //assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);

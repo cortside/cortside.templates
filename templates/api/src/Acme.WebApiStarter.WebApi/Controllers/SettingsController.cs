@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using Acme.WebApiStarter.WebApi.Models.Responses;
 using Cortside.Health.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +11,7 @@ namespace Acme.WebApiStarter.WebApi.Controllers {
     [ApiVersionNeutral]
     [Route("api/settings")]
     [ApiController]
+    [Produces("application/json")]
     public class SettingsController : ControllerBase {
         /// <summary>
         /// Config
@@ -29,10 +29,10 @@ namespace Acme.WebApiStarter.WebApi.Controllers {
         /// Service settings that a consumer may need to be aware of
         /// </summary>
         /// <returns></returns>
-        [HttpGet()]
+        [HttpGet("")]
         [ProducesResponseType(typeof(SettingsModel), 200)]
-        public async Task<IActionResult> GetAsync() {
-            var result = await Task.Run(() => GetSettingsModel()).ConfigureAwait(false);
+        public IActionResult Get() {
+            var result = GetSettingsModel();
             return Ok(result);
         }
 

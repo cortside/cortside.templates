@@ -1,4 +1,5 @@
 using Acme.WebApiStarter.BootStrap;
+using Acme.WebApiStarter.WebApi.Filters;
 using Acme.WebApiStarter.WebApi.Installers;
 using Cortside.Common.BootStrap;
 using Cortside.Common.Correlation;
@@ -77,6 +78,7 @@ namespace Acme.WebApiStarter.WebApi {
                 });
                 //https://stackoverflow.com/questions/55127637/globally-modelstate-validation-in-asp-net-core-mvc
                 options.Filters.Add<MessageExceptionResponseFilter>();
+                options.Conventions.Add(new ApiControllerVersionConvention());
             })
             .AddNewtonsoftJson(options => {
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
@@ -117,10 +119,11 @@ namespace Acme.WebApiStarter.WebApi {
             app.UseMiniProfiler();
             app.UseMiddleware<CorrelationMiddleware>();
 
-            app.UseSwagger();
-            app.UseSwaggerUI(c => {
-                const string s = "/swagger/v1/swagger.json";
-                c.SwaggerEndpoint(s, "Acme.WebApiStarter Api V1");
+            app.UseSwagger(c => { c.RouteTemplate = "swagger/{documentName}/swagger.json"; });
+            app.UseSwaggerUI(options => {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "Acme.WebApiStarter Api v1");
+                options.SwaggerEndpoint("/swagger/v2/swagger.json", "Acme.WebApiStarter Api v2");
+                options.RoutePrefix = "swagger";
             });
 
             if (env.IsDevelopment()) {
