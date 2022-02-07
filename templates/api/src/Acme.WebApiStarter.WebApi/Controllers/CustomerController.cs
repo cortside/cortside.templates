@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
@@ -38,7 +39,7 @@ namespace Acme.WebApiStarter.WebApi.Controllers {
         [ProducesResponseType(typeof(List<CustomerDto>), (int)HttpStatusCode.OK)]
         [ProducesResponseType(400)]
         public async Task<IActionResult> GetWidgetsAsync() {
-            var widgets = await service.GetWidgetsAsync().ConfigureAwait(false);
+            var widgets = await service.GetCustomersAsync().ConfigureAwait(false);
             return Ok(widgets);
         }
 
@@ -50,8 +51,8 @@ namespace Acme.WebApiStarter.WebApi.Controllers {
         [ActionName(nameof(GetWidgetAsync))]
         [Authorize(Constants.Authorization.Permissions.GetWidget)]
         [ProducesResponseType(typeof(CustomerDto), 200)]
-        public async Task<IActionResult> GetWidgetAsync(int id) {
-            var widget = await service.GetWidgetAsync(id).ConfigureAwait(false);
+        public async Task<IActionResult> GetWidgetAsync(Guid id) {
+            var widget = await service.GetCustomerAsync(id).ConfigureAwait(false);
             return Ok(widget);
         }
 
@@ -69,7 +70,7 @@ namespace Acme.WebApiStarter.WebApi.Controllers {
                 LastName = input.LastName,
                 Email = input.Email
             };
-            var widget = await service.CreateWidgetAsync(dto).ConfigureAwait(false);
+            var widget = await service.CreateCustomerAsync(dto).ConfigureAwait(false);
             return CreatedAtAction(nameof(GetWidgetAsync), new { id = widget.CustomerId }, widget);
         }
 
@@ -91,7 +92,7 @@ namespace Acme.WebApiStarter.WebApi.Controllers {
                     Email = input.Email
                 };
 
-                var widget = await service.UpdateWidgetAsync(dto).ConfigureAwait(false);
+                var widget = await service.UpdateCustomerAsync(dto).ConfigureAwait(false);
                 return StatusCode((int)HttpStatusCode.NoContent, widget);
             }
         }
@@ -106,7 +107,7 @@ namespace Acme.WebApiStarter.WebApi.Controllers {
         [ProducesResponseType(400)]
         public async Task<IActionResult> PublishWidgetStateChangedEventAsync(int id) {
             using (LogContext.PushProperty("WidgetId", id)) {
-                await service.PublishWidgetStateChangedEventAsync(id).ConfigureAwait(false);
+                await service.PublishCustomerStateChangedEventAsync(id).ConfigureAwait(false);
                 return StatusCode((int)HttpStatusCode.NoContent);
             }
         }

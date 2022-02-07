@@ -32,7 +32,7 @@ namespace Acme.WebApiStarter.DomainService.Tests {
             var service = new CustomerService(databaseContext, publisher.Object, NullLogger<CustomerService>.Instance);
 
             // Act
-            await service.CreateWidgetAsync(dto);
+            await service.CreateCustomerAsync(dto);
 
             // Assert
             Assert.True(databaseContext.Customers.Any(x => x.FirstName == dto.FirstName));

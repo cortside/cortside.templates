@@ -38,9 +38,7 @@ namespace Acme.WebApiStarter.WebApi.Controllers {
 
         private SettingsModel GetSettingsModel() {
             var ServiceBus = Configuration.GetSection("ServiceBus");
-            var hotDocsSection = Configuration.GetSection("HotDocs");
-            var authConfig = Configuration.GetSection("CortsideIdentityApi");
-            var nautilusSftpSection = Configuration.GetSection("NautilusSftp");
+            var authConfig = Configuration.GetSection("IdentityServer");
             var policyServer = Configuration.GetSection("PolicyServer");
             var build = Configuration.GetSection("Build");
 
@@ -52,8 +50,6 @@ namespace Acme.WebApiStarter.WebApi.Controllers {
                     Suffix = build.GetValue<string>("suffix")
                 },
                 Configuration = new ConfigurationModel() {
-                    HotDocsUrl = hotDocsSection.GetValue<string>("Url"),
-                    NautilusUrl = nautilusSftpSection.GetValue<string>("Url"),
                     ServiceBus = new ServicebusModel {
                         Exchange = ServiceBus.GetValue<string>("Exchange"),
                         NameSpace = ServiceBus.GetValue<string>("Namespace"),

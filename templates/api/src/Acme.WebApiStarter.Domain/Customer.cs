@@ -1,12 +1,19 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Acme.WebApiStarter.Domain {
     [Table("Customer")]
     public class Customer : AuditableEntity {
+        public Customer() {
+            CustomerResourceId = Guid.NewGuid();
+        }
+
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int CustomerId { get; set; }
+
+        public Guid CustomerResourceId { get; set; }
 
         [StringLength(50)]
         public string FirstName { get; set; }

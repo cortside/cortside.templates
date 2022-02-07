@@ -5,10 +5,11 @@ namespace Acme.WebApiStarter.WebApi.Models {
     /// List of results
     /// </summary>
     /// <typeparam name="T">model</typeparam>
-    public class ResultList<T> {
-        /// <summary>
-        /// Results
-        /// </summary>
+    public class ListResult<T> {
+        public ListResult() { }
+        public ListResult(IList<T> results) {
+            Results = results;
+        }
         public IList<T> Results { get; set; }
     }
 }

@@ -5,48 +5,47 @@ using Acme.WebApiStarter.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace Acme.WebApiStarter.Data.Repositories {
-    public class OrderRepository
-       : IOrderRepository {
-        private readonly DatabaseContext _context;
+    public class OrderRepository : IOrderRepository {
+        private readonly DatabaseContext context;
 
         public IUnitOfWork UnitOfWork {
             get {
-                return _context;
+                return context;
             }
         }
 
         public OrderRepository(DatabaseContext context) {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+            this.context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public Order Add(Order order) {
-            return _context.Orders.Add(order).Entity;
-
+        public async Task<Order> AddAsync(Order order) {
+            var entity = await context.Orders.AddAsync(order).ConfigureAwait(false);
+            return entity.Entity;
         }
 
-        public async Task<Order> GetAsync(int orderId) {
-            var order = await _context
+        public async Task<Order> GetAsync(Guid id) {
+            var order = await context
                                 .Orders
                                 .Include(x => x.Address)
-                                .FirstOrDefaultAsync(o => o.OrderId == orderId);
+                                .Include(x => x.Customer)
+                                .FirstOrDefaultAsync(o => o.OrderResourceId == id);
             if (order == null) {
-                order = _context
+                order = context
                             .Orders
                             .Local
-                            .FirstOrDefault(o => o.OrderId == orderId);
+                            .FirstOrDefault(o => o.OrderResourceId == id);
             }
             if (order != null) {
-                await _context.Entry(order)
+                await context.Entry(order)
                     .Collection(i => i.Items).LoadAsync();
-                //await _context.Entry(order)
-                //    .Reference(i => i.Status).LoadAsync();
             }
 
             return order;
         }
 
-        public void Update(Order order) {
-            _context.Entry(order).State = EntityState.Modified;
+        public Task<Order> UpdateAsync(Order order) {
+            context.Entry(order).State = EntityState.Modified;
+            return Task.FromResult(order);
         }
     }
 }
