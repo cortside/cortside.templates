@@ -9,8 +9,10 @@ namespace Acme.WebApiStarter.WebApi.Filters {
                 return;
             }
 
-            var versionParameter = operation.Parameters.Single(p => p.Name == "version");
-            operation.Parameters.Remove(versionParameter);
+            var versionParameter = operation.Parameters.SingleOrDefault(p => p.Name == "version");
+            if (versionParameter != null) {
+                operation.Parameters.Remove(versionParameter);
+            }
         }
     }
 }
