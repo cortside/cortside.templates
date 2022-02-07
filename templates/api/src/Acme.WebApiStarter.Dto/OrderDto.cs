@@ -1,8 +1,15 @@
+using System;
+using System.Collections.Generic;
+using Acme.WebApiStarter.Domain;
+
 namespace Acme.WebApiStarter.Dto {
-    public class CustomerDto : AuditableEntityDto {
-        public int CustomerId { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
+    public class OrderDto : AuditableEntityDto {
+        public int OrderId { get; set; }
+        public Guid OrderResourceId { get; set; }
+
+        public OrderStatus Status { get; set; }
+        public CustomerDto Customer { get; set; }
+        public AddressDto Address { get; set; }
+        public List<OrderItemDto> Items { get; set; }
     }
 }

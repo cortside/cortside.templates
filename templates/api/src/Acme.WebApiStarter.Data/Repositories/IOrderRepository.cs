@@ -1,12 +1,13 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Acme.WebApiStarter.Domain;
 
 namespace Acme.WebApiStarter.Data.Repositories {
     public interface IOrderRepository : IRepository<Order> {
-        Order Add(Order order);
+        Task<Order> AddAsync(Order order);
 
-        void Update(Order order);
+        Task<Order> UpdateAsync(Order order);
 
-        Task<Order> GetAsync(int orderId);
+        Task<Order> GetAsync(Guid id);
     }
 }

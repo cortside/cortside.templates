@@ -5,22 +5,23 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Acme.WebApiStarter.WebApi.Models.Requests;
+using Acme.WebApiStarter.WebApi.Models.Responses;
 using FluentAssertions;
 using Newtonsoft.Json;
 using Xunit;
 
 namespace Acme.WebApiStarter.WebApi.IntegrationTests.Tests {
-    public class WidgetTest : IClassFixture<IntegrationTestFactory<Startup>> {
+    public class CustomerTest : IClassFixture<IntegrationTestFactory<Startup>> {
         private readonly IntegrationTestFactory<Startup> fixture;
         private readonly HttpClient testServerClient;
 
-        public WidgetTest(IntegrationTestFactory<Startup> fixture) {
+        public CustomerTest(IntegrationTestFactory<Startup> fixture) {
             this.fixture = fixture;
             testServerClient = fixture.CreateAuthorizedClient("api");
         }
 
         [Fact]
-        public async Task ShouldCreateWidgetAsync() {
+        public async Task ShouldCreateCustomerAsync() {
             //arrange
             var request = new CustomerRequest() {
                 FirstName = Guid.NewGuid().ToString(),
@@ -35,13 +36,18 @@ namespace Acme.WebApiStarter.WebApi.IntegrationTests.Tests {
 
             //assert
             response.StatusCode.Should().Be(HttpStatusCode.Created);
+            var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var customer = JsonConvert.DeserializeObject<CustomerModel>(content);
+            Assert.Equal(request.FirstName, customer.FirstName);
+            Assert.Equal(request.LastName, customer.LastName);
+            Assert.Equal(request.Email, customer.Email);
         }
 
         [Fact]
-        public async Task ShouldGetWidgetAsync() {
+        public async Task ShouldGetCustomerAsync() {
             //arrange
             var db = fixture.NewScopedDbContext();
-            var id = db.Customers.First().CustomerId;
+            var id = db.Customers.First().CustomerResourceId;
 
             //act
             var response = await testServerClient.GetAsync($"api/v1/customers/{id}").ConfigureAwait(false);

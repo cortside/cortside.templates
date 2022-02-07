@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Reflection;
+using Acme.WebApiStarter.Data.Repositories;
 using Acme.WebApiStarter.DomainService;
 using Cortside.Common.BootStrap;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +23,16 @@ namespace Acme.WebApiStarter.BootStrap.Installer {
             // register domain services
             typeof(SubjectService).GetTypeInfo().Assembly.GetTypes()
                 .Where(x => (x.Name.EndsWith("Service"))
+                    && x.GetTypeInfo().IsClass
+                    && !x.GetTypeInfo().IsAbstract
+                    && x.GetInterfaces().Any())
+                .ToList().ForEach(x => {
+                    x.GetInterfaces().ToList()
+                        .ForEach(i => services.AddScoped(i, x));
+                });
+
+            typeof(OrderRepository).GetTypeInfo().Assembly.GetTypes()
+                .Where(x => (x.Name.EndsWith("Repository"))
                     && x.GetTypeInfo().IsClass
                     && !x.GetTypeInfo().IsAbstract
                     && x.GetInterfaces().Any())

@@ -20,7 +20,7 @@ namespace Acme.WebApiStarter.DomainService {
             this.logger = logger;
         }
 
-        public async Task<CustomerDto> CreateWidgetAsync(CustomerDto dto) {
+        public async Task<CustomerDto> CreateCustomerAsync(CustomerDto dto) {
             var entity = new Domain.Customer() {
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
@@ -35,7 +35,7 @@ namespace Acme.WebApiStarter.DomainService {
                     try {
                         db.Customers.Add(entity);
                         await db.SaveChangesAsync().ConfigureAwait(false);
-                        var @event = new CustomerStageChangedEvent() { CustomerId = entity.CustomerId, FirstName = entity.LastName, LastName = entity.FirstName, Email = entity.Email, Timestamp = DateTime.UtcNow };
+                        var @event = new CustomerStateChangedEvent() { CustomerResourceId = entity.CustomerResourceId, Timestamp = entity.LastModifiedDate };
                         await publisher.PublishAsync(@event).ConfigureAwait(false);
                         await db.SaveChangesAsync().ConfigureAwait(false);
                         await tx.CommitAsync().ConfigureAwait(false);
@@ -47,53 +47,54 @@ namespace Acme.WebApiStarter.DomainService {
                 }
             }).ConfigureAwait(false);
 
-            return ToWidgetDto(entity);
+            return ToCustomerDto(entity);
         }
 
-        public Task<CustomerDto> DeleteWidgetAsync(int widgetId) {
+        public Task<CustomerDto> DeleteCustomerAsync(int widgetId) {
             throw new NotImplementedException();
         }
 
-        public async Task<CustomerDto> GetWidgetAsync(int widgetId) {
-            var entity = await db.Customers.SingleAsync(x => x.CustomerId == widgetId).ConfigureAwait(false);
-            return ToWidgetDto(entity);
+        public async Task<CustomerDto> GetCustomerAsync(Guid customerResourceId) {
+            var entity = await db.Customers.SingleAsync(x => x.CustomerResourceId == customerResourceId).ConfigureAwait(false);
+            return ToCustomerDto(entity);
         }
 
-        public async Task<List<CustomerDto>> GetWidgetsAsync() {
+        public async Task<List<CustomerDto>> GetCustomersAsync() {
             var entities = await db.Customers.ToListAsync().ConfigureAwait(false);
 
             var dtos = new List<CustomerDto>();
             foreach (var entity in entities) {
-                dtos.Add(ToWidgetDto(entity));
+                dtos.Add(ToCustomerDto(entity));
             }
 
             return dtos;
         }
 
-        public async Task<CustomerDto> UpdateWidgetAsync(CustomerDto dto) {
+        public async Task<CustomerDto> UpdateCustomerAsync(CustomerDto dto) {
             var entity = await db.Customers.FirstOrDefaultAsync(w => w.CustomerId == dto.CustomerId).ConfigureAwait(false);
             entity.FirstName = dto.FirstName;
             entity.LastName = dto.LastName;
             entity.Email = dto.Email;
 
-            var @event = new CustomerStageChangedEvent() { CustomerId = entity.CustomerId, FirstName = entity.FirstName, LastName = entity.LastName, Email = entity.Email, Timestamp = DateTime.UtcNow };
+            var @event = new CustomerStateChangedEvent() { CustomerResourceId = entity.CustomerResourceId, Timestamp = entity.LastModifiedDate };
             await publisher.PublishAsync(@event).ConfigureAwait(false);
 
             await db.SaveChangesAsync().ConfigureAwait(false);
-            return ToWidgetDto(entity);
+            return ToCustomerDto(entity);
         }
 
-        public async Task PublishWidgetStateChangedEventAsync(int id) {
+        public async Task PublishCustomerStateChangedEventAsync(int id) {
             var entity = await db.Customers.FirstOrDefaultAsync(w => w.CustomerId == id).ConfigureAwait(false);
 
-            var @event = new CustomerStageChangedEvent() { CustomerId = entity.CustomerId, FirstName = entity.FirstName, LastName = entity.LastName, Email = entity.Email, Timestamp = DateTime.UtcNow };
+            var @event = new CustomerStateChangedEvent() { CustomerResourceId = entity.CustomerResourceId, Timestamp = entity.LastModifiedDate };
             await publisher.PublishAsync(@event).ConfigureAwait(false);
             await db.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        private CustomerDto ToWidgetDto(Domain.Customer entity) {
+        private CustomerDto ToCustomerDto(Domain.Customer entity) {
             return new CustomerDto() {
                 CustomerId = entity.CustomerId,
+                CustomerResourceId = entity.CustomerResourceId,
                 FirstName = entity.FirstName,
                 LastName = entity.LastName,
                 Email = entity.Email
