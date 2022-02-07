@@ -10,6 +10,7 @@ using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -115,15 +116,23 @@ namespace Acme.WebApiStarter.WebApi {
         /// </summary>
         /// <param name="app"></param>
         /// <param name="env"></param>
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider) {
             app.UseMiniProfiler();
             app.UseMiddleware<CorrelationMiddleware>();
 
-            app.UseSwagger(c => { c.RouteTemplate = "swagger/{documentName}/swagger.json"; });
+            app.UseSwagger();
             app.UseSwaggerUI(options => {
-                options.SwaggerEndpoint("/swagger/v1/swagger.json", "Acme.WebApiStarter Api v1");
-                options.SwaggerEndpoint("/swagger/v2/swagger.json", "Acme.WebApiStarter Api v2");
                 options.RoutePrefix = "swagger";
+
+                foreach (var description in provider.ApiVersionDescriptions) {
+                    var version = description.GroupName.ToLowerInvariant();
+                    options.SwaggerEndpoint($"/swagger/{version}/swagger.json", "Acme.WebApiStarter Api " + version);
+                }
+            });
+
+            app.UseReDoc(c => {
+                c.DocumentTitle = "REDOC API Documentation";
+                c.SpecUrl = "/swagger/v1/swagger.json";
             });
 
             if (env.IsDevelopment()) {
