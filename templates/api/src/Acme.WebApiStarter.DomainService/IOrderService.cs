@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Acme.WebApiStarter.Dto;
 
@@ -7,7 +8,7 @@ namespace Acme.WebApiStarter.DomainService {
         Task<OrderDto> CreateOrderAsync(OrderDto dto);
         //Task DeleteOrderAsync(int widgetId);
         Task<OrderDto> GetOrderAsync(Guid id);
-        //Task<List<OrderDto>> GetOrdersAsync();
+        Task<List<OrderDto>> GetOrdersAsync();
         //Task PublishOrderStateChangedEventAsync(int id);
         //Task<OrderDto> UpdateOrderAsync(OrderDto dto);
     }

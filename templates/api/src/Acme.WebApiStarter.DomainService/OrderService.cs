@@ -53,16 +53,16 @@ namespace Acme.WebApiStarter.DomainService {
             return ToOrderDto(entity);
         }
 
-        //public async Task<List<OrderDto>> GetOrdersAsync() {
-        //    var entities = await db.Orders.ToListAsync().ConfigureAwait(false);
+        public async Task<List<OrderDto>> GetOrdersAsync() {
+            var entities = await db.Orders.ToListAsync().ConfigureAwait(false);
 
-        //    var dtos = new List<OrderDto>();
-        //    foreach (var entity in entities) {
-        //        dtos.Add(ToWidgetDto(entity));
-        //    }
+            var dtos = new List<OrderDto>();
+            foreach (var entity in entities) {
+                dtos.Add(ToOrderDto(entity));
+            }
 
-        //    return dtos;
-        //}
+            return dtos;
+        }
 
         //public async Task<OrderDto> UpdateOrderAsync(OrderDto dto) {
         //    var entity = await db.Orders.FirstOrDefaultAsync(w => w.OrderId == dto.OrderId).ConfigureAwait(false);
@@ -90,16 +90,16 @@ namespace Acme.WebApiStarter.DomainService {
                 OrderId = entity.OrderId,
                 OrderResourceId = entity.OrderResourceId,
                 Address = new AddressDto() {
-                    Street = entity.Address.Street,
-                    City = entity.Address.City,
-                    State = entity.Address.State,
-                    Country = entity.Address.Country,
-                    ZipCode = entity.Address.ZipCode
+                    Street = entity.Address?.Street,
+                    City = entity.Address?.City,
+                    State = entity.Address?.State,
+                    Country = entity.Address?.Country,
+                    ZipCode = entity.Address?.ZipCode
                 },
                 Customer = new CustomerDto() {
-                    FirstName = entity.Customer.FirstName,
-                    LastName = entity.Customer.LastName,
-                    Email = entity.Customer.Email
+                    FirstName = entity.Customer?.FirstName,
+                    LastName = entity.Customer?.LastName,
+                    Email = entity.Customer?.Email
                 },
                 CreatedDate = entity.CreatedDate,
                 LastModifiedDate = entity.LastModifiedDate,
