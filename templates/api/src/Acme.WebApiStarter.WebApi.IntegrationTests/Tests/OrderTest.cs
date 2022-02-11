@@ -73,5 +73,23 @@ namespace Acme.WebApiStarter.WebApi.IntegrationTests.Tests {
             //assert
             response.StatusCode.Should().Be(HttpStatusCode.OK);
         }
+
+        [Fact]
+        public async Task ShouldGetPagedOrdersAsync() {
+            //arrange
+            var db = fixture.NewScopedDbContext();
+            var customer = db.Customers.First();
+            for (int i = 0; i < 10; i++) {
+                var order = new Order(customer, "", "", "", "", "");
+                db.Orders.Add(order);
+            }
+            await db.SaveChangesAsync();
+
+            //act
+            var response = await testServerClient.GetAsync($"api/v1/orders?pageSize=5&page=1").ConfigureAwait(false);
+
+            //assert
+            response.StatusCode.Should().Be(HttpStatusCode.OK);
+        }
     }
 }

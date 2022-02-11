@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using Acme.WebApiStarter.DomainService;
 using Acme.WebApiStarter.Dto;
@@ -28,17 +30,17 @@ namespace Acme.WebApiStarter.WebApi.Controllers {
             this.service = service;
         }
 
-        ///// <summary>
-        ///// Gets widgets
-        ///// </summary>
-        //[HttpGet("")]
-        //[Authorize(Constants.Authorization.Permissions.GetWidgets)]
-        //[ProducesResponseType(typeof(List<OrderDto>), (int)HttpStatusCode.OK)]
-        //[ProducesResponseType(400)]
-        //public async Task<IActionResult> GetWidgetsAsync() {
-        //    var widgets = await service.GetCustomersAsync().ConfigureAwait(false);
-        //    return Ok(widgets);
-        //}
+        /// <summary>
+        /// Gets orders
+        /// </summary>
+        [HttpGet("")]
+        [Authorize(Constants.Authorization.Permissions.GetWidgets)]
+        [ProducesResponseType(typeof(List<OrderDto>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(400)]
+        public async Task<IActionResult> GetOrdersAsync() {
+            var widgets = await service.GetOrdersAsync().ConfigureAwait(false);
+            return Ok(widgets);
+        }
 
         /// <summary>
         /// Gets a widget by id
