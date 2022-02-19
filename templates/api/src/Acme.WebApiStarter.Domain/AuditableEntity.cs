@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Acme.WebApiStarter.Domain.Entities;
 
 namespace Acme.WebApiStarter.Domain {
     /// <summary>

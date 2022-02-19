@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Acme.WebApiStarter.Domain;
+using Acme.WebApiStarter.Domain.Entities;
 
 namespace Acme.WebApiStarter.Data.Repositories {
     public interface IOrderRepository : IRepository<Order> {
