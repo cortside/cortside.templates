@@ -1,5 +1,5 @@
-﻿using System;
-using System.IdentityModel.Tokens.Jwt;
+﻿using System.IdentityModel.Tokens.Jwt;
+using Acme.WebApiStarter.Configuration;
 using Cortside.Common.BootStrap;
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
@@ -11,22 +11,30 @@ namespace Acme.WebApiStarter.WebApi.Installers {
         public void Install(IServiceCollection services, IConfigurationRoot configuration) {
             JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
-            var authConfig = configuration.GetSection("IdentityServer");
+            var idsConfig = configuration.GetSection("IdentityServer").Get<IdentityServerConfiguration>();
             services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
                 .AddIdentityServerAuthentication(options => {
                     // base-address of your identityserver
-                    options.Authority = authConfig.GetValue<string>("Authority");
-                    options.RequireHttpsMetadata = authConfig.GetValue<bool>("RequireHttpsMetadata");
+                    options.Authority = idsConfig.Authority;
+                    options.RequireHttpsMetadata = idsConfig.RequireHttpsMetadata;
                     options.RoleClaimType = "role";
                     options.NameClaimType = "name";
 
                     // name of the API resource
-                    options.ApiName = authConfig.GetValue<string>("ApiName");
-                    options.ApiSecret = authConfig.GetValue<string>("ApiSecret");
+                    options.ApiName = idsConfig.ApiName;
+                    options.ApiSecret = idsConfig.ApiSecret;
 
-                    options.EnableCaching = true;
-                    options.CacheDuration = TimeSpan.FromMinutes(10);
+                    options.EnableCaching = idsConfig.EnableCaching;
+                    options.CacheDuration = idsConfig.CacheDuration;
                 });
+
+
+            // policy server
+            configuration["PolicyServer:TokenClient:Authority"] = idsConfig.Authority;
+            configuration["PolicyServer:TokenClient:ClientId"] = idsConfig.Authentication.ClientId;
+            configuration["PolicyServer:TokenClient:ClientSecret"] = idsConfig.Authentication.ClientSecret;
+            services.AddPolicyServerRuntimeClient(configuration.GetSection("PolicyServer"))
+                .AddAuthorizationPermissionPolicies();
         }
     }
 }
