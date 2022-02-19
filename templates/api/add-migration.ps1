@@ -3,7 +3,7 @@ param(
 	[parameter(Mandatory=$true)][string]$migration
 )
 
-$repo = "Acme.WebApiStarter"
+$repo = "Acme.ShoppingCart"
 $project = "src/$repo.Data"
 $startup = "src/$repo.WebApi"
 $context = "DatabaseContext"

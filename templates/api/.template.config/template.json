@@ -5,7 +5,7 @@
   "identity": "AspNetCore.Template",
   "name": "ASP.NET Core Template",
   "shortName": "cortside-api",
-  "sourceName": "Acme.WebApiStarter",
+  "sourceName": "Acme.ShoppingCart",
     "symbols": {
         "organization": {
             "type": "parameter",
