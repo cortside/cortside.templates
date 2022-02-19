@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Acme.WebApiStarter.Domain;
+using Acme.WebApiStarter.Domain.Entities;
 using Cortside.Common.Security;
 using Cortside.DomainEvent.EntityFramework;
 using Microsoft.EntityFrameworkCore;

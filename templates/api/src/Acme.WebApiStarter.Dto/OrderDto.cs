@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Acme.WebApiStarter.Domain;
+using Acme.WebApiStarter.Domain.Enumerations;
 
 namespace Acme.WebApiStarter.Dto {
     public class OrderDto : AuditableEntityDto {

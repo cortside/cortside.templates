@@ -1,4 +1,4 @@
-﻿namespace Acme.WebApiStarter.Domain {
+﻿namespace Acme.WebApiStarter.Domain.Enumerations {
     public enum OrderStatus {
         Submitted,
         AwaitingValidation,

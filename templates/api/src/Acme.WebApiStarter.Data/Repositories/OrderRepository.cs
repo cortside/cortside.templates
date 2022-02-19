@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Acme.WebApiStarter.Domain;
+using Acme.WebApiStarter.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Acme.WebApiStarter.Data.Repositories {

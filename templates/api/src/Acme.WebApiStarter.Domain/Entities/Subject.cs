@@ -2,7 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Acme.WebApiStarter.Domain {
+namespace Acme.WebApiStarter.Domain.Entities {
     [Table("Subject")]
     public class Subject {
         [Key]

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Acme.DomainEvent.Events;
 using Acme.WebApiStarter.Data;
+using Acme.WebApiStarter.Domain.Entities;
 using Acme.WebApiStarter.Dto;
 using Cortside.DomainEvent;
 using Microsoft.EntityFrameworkCore;
@@ -21,7 +22,7 @@ namespace Acme.WebApiStarter.DomainService {
         }
 
         public async Task<CustomerDto> CreateCustomerAsync(CustomerDto dto) {
-            var entity = new Domain.Customer() {
+            var entity = new Customer() {
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,
                 Email = dto.Email
@@ -91,7 +92,7 @@ namespace Acme.WebApiStarter.DomainService {
             await db.SaveChangesAsync().ConfigureAwait(false);
         }
 
-        private CustomerDto ToCustomerDto(Domain.Customer entity) {
+        private CustomerDto ToCustomerDto(Customer entity) {
             return new CustomerDto() {
                 CustomerId = entity.CustomerId,
                 CustomerResourceId = entity.CustomerResourceId,

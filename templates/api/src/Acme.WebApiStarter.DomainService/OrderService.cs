@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Acme.DomainEvent.Events;
 using Acme.WebApiStarter.Data;
 using Acme.WebApiStarter.Data.Repositories;
-using Acme.WebApiStarter.Domain;
+using Acme.WebApiStarter.Domain.Entities;
 using Acme.WebApiStarter.Dto;
 using Acme.WebApiStarter.Exceptions;
 using Cortside.DomainEvent;
@@ -85,7 +85,7 @@ namespace Acme.WebApiStarter.DomainService {
         //    await db.SaveChangesAsync().ConfigureAwait(false);
         //}
 
-        private OrderDto ToOrderDto(Domain.Order entity) {
+        private OrderDto ToOrderDto(Order entity) {
             var dto = new OrderDto() {
                 OrderId = entity.OrderId,
                 OrderResourceId = entity.OrderResourceId,

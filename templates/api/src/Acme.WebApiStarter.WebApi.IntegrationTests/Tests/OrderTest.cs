@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Acme.WebApiStarter.Domain;
+using Acme.WebApiStarter.Domain.Entities;
 using Acme.WebApiStarter.WebApi.Models.Requests;
 using Acme.WebApiStarter.WebApi.Models.Responses;
 using FluentAssertions;

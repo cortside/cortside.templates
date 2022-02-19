@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using Acme.WebApiStarter.Domain.Entities;
+using Xunit;
 
 namespace Acme.WebApiStarter.Domain.Tests {
     public class CustomerTest {

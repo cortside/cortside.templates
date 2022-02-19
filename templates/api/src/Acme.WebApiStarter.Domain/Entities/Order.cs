@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Acme.WebApiStarter.Domain.Enumerations;
 
-namespace Acme.WebApiStarter.Domain {
+namespace Acme.WebApiStarter.Domain.Entities {
     [Table("Order")]
     public class Order : AuditableEntity {
         public Order() {
