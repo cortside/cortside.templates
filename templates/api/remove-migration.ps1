@@ -2,7 +2,7 @@
 param(
 )
 
-$repo = "Acme.WebApiStarter"
+$repo = "Acme.ShoppingCart"
 $project = "src/$repo.Data"
 $startup = "src/$repo.WebApi"
 $context = "DatabaseContext"

@@ -172,7 +172,7 @@ if ($suffix){
 }
 
 # copy generated build.json to needed applications
-#cp .\src\build.json .\src\Acme.WebApiStarter.WebApi\build.json -force
+#cp .\src\build.json .\src\Acme.ShoppingCart.WebApi\build.json -force
 
 # build
 $args = "clean $PSScriptRoot\src"
@@ -181,5 +181,5 @@ $args = "restore $PSScriptRoot\src --packages $PSScriptRoot\src\packages"
 Invoke-Exe -cmd dotnet -args $args
 $args = "build $PSScriptRoot\src --no-restore --configuration $msbuildconfig /p:Version=$BuildNumber"
 Invoke-Exe -cmd dotnet -args $args
-#$args = "publish $PSScriptRoot\src\Acme.WebApiStarter.WebApi\Acme.WebApiStarter.WebApi.csproj --no-restore /p:Version=$BuildNumber"
+#$args = "publish $PSScriptRoot\src\Acme.ShoppingCart.WebApi\Acme.ShoppingCart.WebApi.csproj --no-restore /p:Version=$BuildNumber"
 #Invoke-Exe -cmd dotnet -args $args
