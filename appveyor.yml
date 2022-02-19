@@ -1,5 +1,6 @@
 version: '1.0.{build}'
-image: Visual Studio 2019
+image: Visual Studio 2022
+
 environment:
   NugetApiKey:
     secure: NK6JEky2i7+06Ij+PlJX7X0xlKT4fg2zDIFP5fiFSy6EqxcIYThFBkzzqpQTUnsO
@@ -13,15 +14,28 @@ dotnet_csproj:
   
 pull_requests:
   do_not_increment_build_number: true
+
 branches:
   only:
   - master
+
 nuget:
   disable_publish_on_pr: true
+
 test: off
+
 build_script:
-  - dotnet restore .\templates
-  - dotnet pack .\templates\templates.csproj -o .\artifacts\ --no-build
+  - ./build.ps1
+  
+after_build:
+- ps: >-
+    $branch = $ENV:APPVEYOR_REPO_BRANCH;
+    $fileVersion = $env:APPVEYOR_BUILD_VERSION;
+    if($branch -ne 'master') {
+        $fileVersion = "${fileVersion}-${branch}"; 
+    }   
+    dotnet pack src/cortside.restsharpclient.sln --include-symbols -p:SymbolPackageFormat=snupkg --configuration $env:configuration -o ((get-location).Path + '\artifacts') /property:Version=$fileVersion 
+  
 deploy_script:
   - ps: dotnet nuget push .\artifacts\*.nupkg -k $env:NugetApiKey --source https://api.nuget.org/v3/index.json
  
