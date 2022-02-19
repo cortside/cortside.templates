@@ -1,17 +1,17 @@
 ﻿using Xunit;
 
 namespace Acme.WebApiStarter.Domain.Tests {
-    public class WidgetTest {
+    public class CustomerTest {
         [Fact]
         public void Foo() {
             // Arrange
-            var widget = new Customer();
+            var customer = new Customer();
 
             // Act
-            widget.CustomerId = 1;
+            customer.CustomerId = 1;
 
             // Assert
-            Assert.Equal(1, widget.CustomerId);
+            Assert.Equal(1, customer.CustomerId);
         }
     }
 }

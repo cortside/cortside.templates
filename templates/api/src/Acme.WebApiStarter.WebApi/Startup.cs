@@ -104,9 +104,6 @@ namespace Acme.WebApiStarter.WebApi {
 
             services.AddAutoMapper(typeof(Startup).Assembly);
 
-            services.AddPolicyServerRuntimeClient(Configuration.GetSection("PolicyServer"))
-                .AddAuthorizationPermissionPolicies();
-
             services.AddSingleton(Configuration);
             bootstrapper.InitIoCContainer(Configuration as IConfigurationRoot, services);
         }
