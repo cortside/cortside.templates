@@ -42,6 +42,8 @@ namespace Acme.ShoppingCart.WebApi {
             bootstrapper.AddInstaller(new NewtonsoftInstaller());
             bootstrapper.AddInstaller(new SubjectPrincipalInstaller());
             bootstrapper.AddInstaller(new SwaggerInstaller());
+            bootstrapper.AddInstaller(new ModelMapperInstaller());
+            bootstrapper.AddInstaller(new FacadeInstaller());
             Configuration = configuration;
         }
 
@@ -102,8 +104,6 @@ namespace Acme.ShoppingCart.WebApi {
                 return sp.GetRequiredService<IUrlHelperFactory>().GetUrlHelper(sp.GetRequiredService<IActionContextAccessor>().ActionContext);
             });
 
-            services.AddAutoMapper(typeof(Startup).Assembly);
-
             services.AddSingleton(Configuration);
             bootstrapper.InitIoCContainer(Configuration as IConfigurationRoot, services);
         }
@@ -113,6 +113,7 @@ namespace Acme.ShoppingCart.WebApi {
         /// </summary>
         /// <param name="app"></param>
         /// <param name="env"></param>
+        /// <param name="provider"></param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider) {
             app.UseMiniProfiler();
             app.UseMiddleware<CorrelationMiddleware>();
@@ -120,17 +121,27 @@ namespace Acme.ShoppingCart.WebApi {
             app.UseSwagger();
             app.UseSwaggerUI(options => {
                 options.RoutePrefix = "swagger";
+                //options.DefaultModelExpandDepth(-1);
+                options.ShowExtensions();
+                options.ShowCommonExtensions();
+                options.EnableValidator();
+                options.EnableFilter();
+                options.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.List);
 
                 foreach (var description in provider.ApiVersionDescriptions) {
                     var version = description.GroupName.ToLowerInvariant();
-                    options.SwaggerEndpoint($"/swagger/{version}/swagger.json", "Acme.ShoppingCart Api " + version);
+                    options.SwaggerEndpoint($"/swagger/{version}/swagger.json", "Acme.ShoppingCart Api " + version.ToUpper());
                 }
             });
 
-            app.UseReDoc(c => {
-                c.DocumentTitle = "REDOC API Documentation";
-                c.SpecUrl = "/swagger/v1/swagger.json";
-            });
+            foreach (var description in provider.ApiVersionDescriptions) {
+                app.UseReDoc(c => {
+                    var version = description.GroupName.ToLowerInvariant();
+                    c.DocumentTitle = $"MY API Documentation {description.GroupName.ToUpperInvariant()}";
+                    c.RoutePrefix = $"api-docs/{version}";
+                    c.SpecUrl = $"/swagger/{version}/swagger.json";
+                });
+            }
 
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();

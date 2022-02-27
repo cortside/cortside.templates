@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Acme.ShoppingCart.Domain.Entities;
 using Acme.ShoppingCart.WebApi.Models.Requests;
-using Acme.ShoppingCart.WebApi.Models.Responses;
 using FluentAssertions;
 using Newtonsoft.Json;
 using Xunit;
@@ -24,14 +23,12 @@ namespace Acme.ShoppingCart.WebApi.IntegrationTests.Tests {
         [Fact]
         public async Task ShouldCreateOrderAsync() {
             //arrange
-            var request = new CustomerRequest() {
-                FirstName = Guid.NewGuid().ToString(),
-                LastName = "last",
-                Email = "email"
-            };
-            var requestBody = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
-
-            var orderRequest = new OrderRequest() {
+            var orderRequest = new CreateOrderModel() {
+                Customer = new CreateCustomerModel() {
+                    FirstName = "Elmer",
+                    LastName = "Fudd",
+                    Email = "elmer.fudd@gmail.com"
+                },
                 Address = new Models.AddressModel() {
                     Street = "123 Main",
                     City = "Salt Lake City",
@@ -39,18 +36,50 @@ namespace Acme.ShoppingCart.WebApi.IntegrationTests.Tests {
                     Country = "USA",
                     ZipCode = "84009"
                 },
-                Items = new System.Collections.Generic.List<OrderItemModel>() {
-                     new OrderItemModel() { Sku = "123", Quantity= 1 }
+                Items = new System.Collections.Generic.List<CreateOrderItemModel>() {
+                     new CreateOrderItemModel() { Sku = "123", Quantity= 1 }
+                 }
+            };
+
+            //act
+            var orderBody = new StringContent(JsonConvert.SerializeObject(orderRequest), Encoding.UTF8, "application/json");
+            var orderResponse = await testServerClient.PostAsync("/api/v1/orders", orderBody).ConfigureAwait(false);
+
+            //assert
+            var orderContent = await orderResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
+            orderResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+        }
+
+        [Fact]
+        public async Task ShouldCreateCustomerOrderAsync() {
+            //arrange
+            var request = new Models.Requests.CreateCustomerModel() {
+                FirstName = Guid.NewGuid().ToString(),
+                LastName = "last",
+                Email = "email"
+            };
+            var requestBody = new StringContent(JsonConvert.SerializeObject(request), Encoding.UTF8, "application/json");
+
+            var orderRequest = new CreateCustomerOrderModel() {
+                Address = new Models.AddressModel() {
+                    Street = "123 Main",
+                    City = "Salt Lake City",
+                    State = "UT",
+                    Country = "USA",
+                    ZipCode = "84009"
+                },
+                Items = new System.Collections.Generic.List<CreateOrderItemModel>() {
+                     new CreateOrderItemModel() { Sku = "123", Quantity= 1 }
                  }
             };
 
             //act
             var response = await testServerClient.PostAsync("/api/v1/customers", requestBody).ConfigureAwait(false);
             var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            var customer = JsonConvert.DeserializeObject<CustomerModel>(content);
-            orderRequest.CustomerResourceId = customer.CustomerResourceId;
+            var customer = JsonConvert.DeserializeObject<Models.Responses.CustomerModel>(content);
+
             var orderBody = new StringContent(JsonConvert.SerializeObject(orderRequest), Encoding.UTF8, "application/json");
-            var orderResponse = await testServerClient.PostAsync("/api/v1/orders", orderBody).ConfigureAwait(false);
+            var orderResponse = await testServerClient.PostAsync($"/api/v1/customers/{customer.CustomerResourceId}/orders", orderBody).ConfigureAwait(false);
 
             //assert
             response.StatusCode.Should().Be(HttpStatusCode.Created);

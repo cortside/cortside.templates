@@ -2,16 +2,22 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using Acme.ShoppingCart.Data.Repositories;
 using Acme.ShoppingCart.DomainService;
 using Acme.ShoppingCart.Dto;
+using Acme.ShoppingCart.WebApi.Facades;
+using Acme.ShoppingCart.WebApi.Mappers;
 using Acme.ShoppingCart.WebApi.Models.Requests;
+using Acme.ShoppingCart.WebApi.Models.Responses;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Serilog.Context;
 
 namespace Acme.ShoppingCart.WebApi.Controllers {
     /// <summary>
-    /// Represents the shared functionality/resources of the widget resource
+    /// Represents the shared functionality/resources of the order resource
     /// </summary>
     [ApiVersion("1")]
     [ApiVersion("2")]
@@ -21,52 +27,57 @@ namespace Acme.ShoppingCart.WebApi.Controllers {
     public class OrderController : Controller {
         private readonly ILogger logger;
         private readonly IOrderService service;
+        private readonly OrderModelMapper orderMapper;
+        private readonly IOrderFacade facade;
 
         /// <summary>
-        /// Initializes a new instance of the WidgetController
+        /// Initializes a new instance of the OrderController
         /// </summary>
-        public OrderController(ILogger<OrderController> logger, IOrderService service) {
+        public OrderController(ILogger<OrderController> logger, IOrderFacade facade, IOrderService service, OrderModelMapper orderMapper) {
             this.logger = logger;
             this.service = service;
+            this.orderMapper = orderMapper;
+            this.facade = facade;
         }
 
         /// <summary>
         /// Gets orders
         /// </summary>
         [HttpGet("")]
-        [Authorize(Constants.Authorization.Permissions.GetWidgets)]
-        [ProducesResponseType(typeof(List<OrderDto>), (int)HttpStatusCode.OK)]
-        [ProducesResponseType(400)]
-        public async Task<IActionResult> GetOrdersAsync() {
-            var widgets = await service.GetOrdersAsync().ConfigureAwait(false);
-            return Ok(widgets);
+        [Authorize(Constants.Authorization.Permissions.GetOrders)]
+        [ProducesResponseType(typeof(PagedList<OrderModel>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetOrdersAsync([FromQuery] OrderSearch search, int pageNumber = 1, int pageSize = 30, string sort = null) {
+            var results = await service.SearchOrdersAsync(pageSize, pageNumber, sort ?? "", search).ConfigureAwait(false);
+            return Ok(results.Convert(x => orderMapper.Map(x)));
         }
 
         /// <summary>
-        /// Gets a widget by id
+        /// Gets a order by id
         /// </summary>
-        /// <param name="id">the id of the widget to get</param>
+        /// <param name="id">the id of the order to get</param>
         [HttpGet("{id}")]
         [ActionName(nameof(GetOrderAsync))]
-        [Authorize(Constants.Authorization.Permissions.GetWidget)]
-        [ProducesResponseType(typeof(OrderDto), 200)]
+        [Authorize(Constants.Authorization.Permissions.GetOrder)]
+        [ProducesResponseType(typeof(OrderModel), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetOrderAsync(Guid id) {
-            var widget = await service.GetOrderAsync(id).ConfigureAwait(false);
-            return Ok(widget);
+            var dto = await service.GetOrderAsync(id).ConfigureAwait(false);
+            return Ok(orderMapper.Map(dto));
         }
 
         /// <summary>
-        /// Create a new widget
+        /// Create a new order
         /// </summary>
         /// <param name="input"></param>
         [HttpPost("")]
-        [Authorize(Constants.Authorization.Permissions.CreateWidget)]
-        [ProducesResponseType(typeof(OrderDto), 201)]
-        [ProducesResponseType(400)]
-        public async Task<IActionResult> CreateOrderAsync([FromBody] OrderRequest input) {
+        [Authorize(Constants.Authorization.Permissions.CreateOrder)]
+        [ProducesResponseType(typeof(OrderModel), StatusCodes.Status201Created)]
+        public async Task<IActionResult> CreateOrderAsync([FromBody] CreateOrderModel input) {
+            // mapper
             var dto = new OrderDto() {
                 Customer = new CustomerDto() {
-                    CustomerResourceId = input.CustomerResourceId,
+                    FirstName = input.Customer.FirstName,
+                    LastName = input.Customer.LastName,
+                    Email = input.Customer.Email
                 },
                 Address = new AddressDto() {
                     Street = input.Address.Street,
@@ -75,52 +86,98 @@ namespace Acme.ShoppingCart.WebApi.Controllers {
                     Country = input.Address.Country,
                     ZipCode = input.Address.ZipCode
                 },
-                Items = new System.Collections.Generic.List<OrderItemDto>()
+                Items = input.Items?.ConvertAll(x => new OrderItemDto() { Sku = x.Sku, Quantity = x.Quantity })
             };
-            foreach (var item in input.Items) {
+
+            var order = await facade.CreateOrderAsync(dto).ConfigureAwait(false);
+            return CreatedAtAction(nameof(GetOrderAsync), new { id = order.OrderResourceId }, orderMapper.Map(order));
+        }
+
+        /// <summary>
+        /// Create a new order
+        /// </summary>
+        /// <param name="input"></param>
+        /// <param name="resourceId"></param>
+        [HttpPost("/api/v{version:apiVersion}/customers/{resourceId}/orders")]
+        [Authorize(Constants.Authorization.Permissions.CreateOrder)]
+        [ProducesResponseType(typeof(OrderModel), StatusCodes.Status201Created)]
+        public async Task<IActionResult> CreateOrderAsync([FromBody] CreateCustomerOrderModel input, Guid resourceId) {
+            var dto = new OrderDto() {
+                Customer = new CustomerDto() {
+                    CustomerResourceId = resourceId,
+                },
+                Address = new AddressDto() {
+                    Street = input.Address.Street,
+                    City = input.Address.City,
+                    State = input.Address.State,
+                    Country = input.Address.Country,
+                    ZipCode = input.Address.ZipCode
+                },
+                Items = input.Items?.ConvertAll(x => new OrderItemDto() { Sku = x.Sku, Quantity = x.Quantity })
+            };
+            // convertall
+            foreach (var item in input.Items ?? new List<CreateOrderItemModel>()) {
                 dto.Items.Add(new OrderItemDto() { Sku = item.Sku, Quantity = item.Quantity });
             }
 
-            var order = await service.CreateOrderAsync(dto).ConfigureAwait(false);
-            return CreatedAtAction(nameof(GetOrderAsync), new { id = order.OrderResourceId }, order);
+            var order = await facade.CreateOrderAsync(dto).ConfigureAwait(false);
+            return CreatedAtAction(nameof(GetOrderAsync), new { id = order.OrderResourceId }, orderMapper.Map(order));
         }
 
-        ///// <summary>
-        ///// Update a widget
-        ///// </summary>
-        ///// <param name="id"></param>
-        ///// <param name="input"></param>
-        //[HttpPut("{id}")]
-        //[Authorize(Constants.Authorization.Permissions.UpdateWidget)]
-        //[ProducesResponseType(typeof(OrderDto), 204)]
-        //[ProducesResponseType(400)]
-        //public async Task<IActionResult> UpdateWidgetAsync(int id, CustomerRequest input) {
-        //    using (LogContext.PushProperty("WidgetId", id)) {
-        //        var dto = new CustomerDto() {
-        //            CustomerId = id,
-        //            FirstName = input.FirstName,
-        //            LastName = input.LastName,
-        //            Email = input.Email
-        //        };
+        /// <summary>
+        /// Update a order
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="input"></param>
+        [HttpPut("{id}")]
+        [Authorize(Constants.Authorization.Permissions.UpdateOrder)]
+        [ProducesResponseType(typeof(OrderModel), StatusCodes.Status200OK)]
+        public async Task<IActionResult> UpdateOrderAsync(Guid id, CreateOrderModel input) {
+            using (LogContext.PushProperty("OrderResourceId", id)) {
+                var dto = new OrderDto() {
+                    OrderResourceId = id
+                    //FirstName = input.FirstName,
+                    //LastName = input.LastName,
+                    //Email = input.Email
+                };
 
-        //        var widget = await service.UpdateCustomerAsync(dto).ConfigureAwait(false);
-        //        return StatusCode((int)HttpStatusCode.NoContent, widget);
-        //    }
-        //}
+                var result = await service.UpdateOrderAsync(dto).ConfigureAwait(false);
+                return Ok(orderMapper.Map(result));
+            }
+        }
 
-        ///// <summary>
-        ///// Update a widget
-        ///// </summary>
-        ///// <param name="id"></param>
-        //[HttpPost("{id}/publish")]
-        //[Authorize(Constants.Authorization.Permissions.UpdateWidget)]
-        //[ProducesResponseType(typeof(OrderDto), 204)]
-        //[ProducesResponseType(400)]
-        //public async Task<IActionResult> PublishWidgetStateChangedEventAsync(int id) {
-        //    using (LogContext.PushProperty("WidgetId", id)) {
-        //        await service.PublishCustomerStateChangedEventAsync(id).ConfigureAwait(false);
-        //        return StatusCode((int)HttpStatusCode.NoContent);
-        //    }
-        //}
+        /// <summary>
+        /// Update a order
+        /// </summary>
+        /// <param name="resourceId"></param>
+        [HttpPost("{resourceId}/publish")]
+        [Authorize(Constants.Authorization.Permissions.UpdateCustomer)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> PublishCustomerStateChangedEventAsync(Guid resourceId) {
+            using (LogContext.PushProperty("OrderResourceId", resourceId)) {
+                await service.PublishOrderStateChangedEventAsync(resourceId).ConfigureAwait(false);
+                return StatusCode((int)HttpStatusCode.NoContent);
+            }
+        }
+
+        /// <summary>
+        /// Add an order item
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="input"></param>
+        [HttpPut("{id}/items")]
+        [Authorize(Constants.Authorization.Permissions.UpdateOrder)]
+        [ProducesResponseType(typeof(OrderModel), StatusCodes.Status200OK)]
+        public async Task<IActionResult> AddOrderItemAsync(Guid id, CreateOrderItemModel input) {
+            using (LogContext.PushProperty("OrderResourceId", id)) {
+                var dto = new OrderItemDto() {
+                    Sku = input.Sku,
+                    Quantity = input.Quantity
+                };
+
+                var result = await service.AddOrderItemAsync(id, dto).ConfigureAwait(false);
+                return Ok(result);
+            }
+        }
     }
 }

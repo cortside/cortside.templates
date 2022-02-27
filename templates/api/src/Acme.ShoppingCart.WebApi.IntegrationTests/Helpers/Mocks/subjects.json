@@ -19,10 +19,14 @@
               "Internal"
             ],
             "permissions": [
-              "GetWidgets",
-              "GetWidget",
-              "CreateWidget",
-              "UpdateWidget"
+              "GetOrders",
+              "GetOrder",
+              "CreateOrder",
+              "UpdateOrder",
+              "GetCustomers",
+              "GetCustomer",
+              "CreateCustomer",
+              "UpdateCustomer"
             ]
           }
         }

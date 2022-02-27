@@ -4,8 +4,6 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Acme.ShoppingCart.WebApi.Models.Requests;
-using Acme.ShoppingCart.WebApi.Models.Responses;
 using FluentAssertions;
 using Newtonsoft.Json;
 using Xunit;
@@ -23,7 +21,7 @@ namespace Acme.ShoppingCart.WebApi.IntegrationTests.Tests {
         [Fact]
         public async Task ShouldCreateCustomerAsync() {
             //arrange
-            var request = new CustomerRequest() {
+            var request = new Models.Requests.CreateCustomerModel() {
                 FirstName = Guid.NewGuid().ToString(),
                 LastName = "last",
                 Email = "email"
@@ -37,7 +35,7 @@ namespace Acme.ShoppingCart.WebApi.IntegrationTests.Tests {
             //assert
             response.StatusCode.Should().Be(HttpStatusCode.Created);
             var content = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            var customer = JsonConvert.DeserializeObject<CustomerModel>(content);
+            var customer = JsonConvert.DeserializeObject<Models.Responses.CustomerModel>(content);
             Assert.Equal(request.FirstName, customer.FirstName);
             Assert.Equal(request.LastName, customer.LastName);
             Assert.Equal(request.Email, customer.Email);

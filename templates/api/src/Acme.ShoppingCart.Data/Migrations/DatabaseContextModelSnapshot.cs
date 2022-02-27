@@ -171,6 +171,9 @@ namespace Acme.ShoppingCart.Data.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("ItemId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("LastModifiedDate")
                         .HasColumnType("datetime2");
 
