@@ -1,116 +1,110 @@
 using System;
-using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using Acme.DomainEvent.Events;
 using Acme.ShoppingCart.Data;
 using Acme.ShoppingCart.Data.Repositories;
 using Acme.ShoppingCart.Domain.Entities;
+using Acme.ShoppingCart.DomainService.Mappers;
 using Acme.ShoppingCart.Dto;
 using Acme.ShoppingCart.Exceptions;
+using Acme.ShoppingCart.UserClient;
 using Cortside.DomainEvent;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Acme.ShoppingCart.DomainService {
     public class OrderService : IOrderService {
-        private readonly DatabaseContext db;
         private readonly IDomainEventOutboxPublisher publisher;
         private readonly ILogger<OrderService> logger;
         private readonly IOrderRepository orderRepository;
         private readonly IUnitOfWork uow;
+        private readonly ICatalogClient catalog;
+        private readonly OrderMapper mapper;
+        private readonly ICustomerRepository customerRespository;
 
-        public OrderService(IOrderRepository orderRepository, DatabaseContext db, IDomainEventOutboxPublisher publisher, ILogger<OrderService> logger) {
-            this.db = db;
+        public OrderService(IUnitOfWork uow, IOrderRepository orderRepository, ICustomerRepository customerRespository, OrderMapper mapper, IDomainEventOutboxPublisher publisher, ILogger<OrderService> logger, ICatalogClient catalog) {
             this.publisher = publisher;
             this.logger = logger;
             this.orderRepository = orderRepository;
-            this.uow = orderRepository.UnitOfWork;
+            this.mapper = mapper;
+            this.customerRespository = customerRespository;
+            this.uow = uow;
+            this.catalog = catalog;
         }
 
         public async Task<OrderDto> CreateOrderAsync(OrderDto dto) {
             // don't use context directly
-            var customer = await db.Customers.FirstOrDefaultAsync(x => x.CustomerResourceId == dto.Customer.CustomerResourceId);
-            //Guard.Against();
+            var customer = await customerRespository.GetAsync(dto.Customer.CustomerResourceId).ConfigureAwait(false);
+            //Guard.Against();  // TODO: this should be in common.messages
             if (customer == null) {
                 throw new BadRequestMessage("customer not found");
             }
 
             var entity = new Order(customer, dto.Address.Street, dto.Address.City, dto.Address.State, dto.Address.Country, dto.Address.ZipCode);
+            foreach (var i in dto.Items) {
+                var item = await catalog.GetItem(i.Sku).ConfigureAwait(false);
+                entity.AddItem(item, i.Quantity);
+            }
             await orderRepository.AddAsync(entity);
             var @event = new OrderStateChangedEvent() { OrderResourceId = entity.OrderResourceId, Timestamp = entity.LastModifiedDate };
             await publisher.PublishAsync(@event).ConfigureAwait(false);
             await uow.SaveChangesAsync();
 
-            return ToOrderDto(entity);
+            return mapper.MapToDto(entity);
         }
-
-        //public Task DeleteOrderAsync(int widgetId) {
-        //    throw new NotImplementedException();
-        //}
 
         public async Task<OrderDto> GetOrderAsync(Guid id) {
-            var entity = await orderRepository.GetAsync(id);
-            return ToOrderDto(entity);
+            var entity = await orderRepository.GetAsync(id).ConfigureAwait(false);
+            return mapper.MapToDto(entity);
         }
 
-        public async Task<List<OrderDto>> GetOrdersAsync() {
-            var entities = await db.Orders.ToListAsync().ConfigureAwait(false);
+        public async Task<PagedList<OrderDto>> SearchOrdersAsync(int pageSize, int pageNumber, string sortParams, OrderSearch search) {
+            using (var tx = await uow.BeginTransactionAsync(IsolationLevel.ReadUncommitted)) {
+                var orders = await orderRepository.SearchAsync(pageSize, pageNumber, sortParams, search).ConfigureAwait(false);
 
-            var dtos = new List<OrderDto>();
-            foreach (var entity in entities) {
-                dtos.Add(ToOrderDto(entity));
+                var results = new PagedList<OrderDto> {
+                    PageNumber = orders.PageNumber,
+                    PageSize = orders.PageSize,
+                    TotalItems = orders.TotalItems,
+                    Items = orders.Items.Select(x => mapper.MapToDto(x)).ToList()
+                };
+
+                await tx.CommitAsync().ConfigureAwait(false);
+                return results;
             }
-
-            return dtos;
         }
 
-        //public async Task<OrderDto> UpdateOrderAsync(OrderDto dto) {
-        //    var entity = await db.Orders.FirstOrDefaultAsync(w => w.OrderId == dto.OrderId).ConfigureAwait(false);
-        //    entity.FirstName = dto.FirstName;
-        //    entity.LastName = dto.LastName;
-        //    entity.Email = dto.Email;
+        public async Task<OrderDto> UpdateOrderAsync(OrderDto dto) {
+            var entity = await orderRepository.GetAsync(dto.OrderResourceId).ConfigureAwait(false);
+            //entity.FirstName = dto.FirstName;
+            //entity.LastName = dto.LastName;
+            //entity.Email = dto.Email;
 
-        //    var @event = new OrderStageChangedEvent() { OrderId = entity.OrderId, FirstName = entity.FirstName, LastName = entity.LastName, Email = entity.Email, Timestamp = DateTime.UtcNow };
-        //    await publisher.PublishAsync(@event).ConfigureAwait(false);
+            var @event = new OrderStateChangedEvent() { OrderResourceId = entity.OrderResourceId, Timestamp = DateTime.UtcNow };
+            await publisher.PublishAsync(@event).ConfigureAwait(false);
 
-        //    await db.SaveChangesAsync().ConfigureAwait(false);
-        //    return ToWidgetDto(entity);
-        //}
+            await uow.SaveChangesAsync().ConfigureAwait(false);
+            return mapper.MapToDto(entity);
+        }
 
-        //public async Task PublishOrderStateChangedEventAsync(int id) {
-        //    var entity = await db.Orders.FirstOrDefaultAsync(w => w.OrderId == id).ConfigureAwait(false);
+        public async Task PublishOrderStateChangedEventAsync(Guid id) {
+            var entity = await orderRepository.GetAsync(id).ConfigureAwait(false);
 
-        //    var @event = new OrderStageChangedEvent() { OrderId = entity.OrderId, FirstName = entity.FirstName, LastName = entity.LastName, Email = entity.Email, Timestamp = DateTime.UtcNow };
-        //    await publisher.PublishAsync(@event).ConfigureAwait(false);
-        //    await db.SaveChangesAsync().ConfigureAwait(false);
-        //}
+            var @event = new OrderStateChangedEvent() { OrderResourceId = entity.OrderResourceId, Timestamp = DateTime.UtcNow };
+            await publisher.PublishAsync(@event).ConfigureAwait(false);
+            await uow.SaveChangesAsync().ConfigureAwait(false);
+        }
 
-        private OrderDto ToOrderDto(Order entity) {
-            var dto = new OrderDto() {
-                OrderId = entity.OrderId,
-                OrderResourceId = entity.OrderResourceId,
-                Address = new AddressDto() {
-                    Street = entity.Address?.Street,
-                    City = entity.Address?.City,
-                    State = entity.Address?.State,
-                    Country = entity.Address?.Country,
-                    ZipCode = entity.Address?.ZipCode
-                },
-                Customer = new CustomerDto() {
-                    FirstName = entity.Customer?.FirstName,
-                    LastName = entity.Customer?.LastName,
-                    Email = entity.Customer?.Email
-                },
-                CreatedDate = entity.CreatedDate,
-                LastModifiedDate = entity.LastModifiedDate,
-                CreatedSubject = new SubjectDto() {
-                },
-                LastModifiedSubject = new SubjectDto() {
-                },
-                Items = new List<OrderItemDto>()
-            };
-            return dto;
+        public async Task<OrderDto> AddOrderItemAsync(Guid id, OrderItemDto dto) {
+            var entity = await orderRepository.GetAsync(id).ConfigureAwait(false);
+            var item = await catalog.GetItem(dto.Sku).ConfigureAwait(false);
+            entity.AddItem(item, dto.Quantity);
+            var @event = new OrderStateChangedEvent() { OrderResourceId = entity.OrderResourceId, Timestamp = DateTime.UtcNow };
+            await publisher.PublishAsync(@event).ConfigureAwait(false);
+
+            await uow.SaveChangesAsync().ConfigureAwait(false);
+            return mapper.MapToDto(entity);
         }
     }
 }
-
