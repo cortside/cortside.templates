@@ -4,7 +4,7 @@
   "classifications": [ "ASP.NET Core", "Core", "MVC", "Template", "Web", "Cortside" ],
   "identity": "AspNetCore.Template",
   "name": "ASP.NET Core Template",
-  "shortName": "cortside-api",
+  "shortName": "webapi",
   "sourceName": "Acme.ShoppingCart",
     "symbols": {
         "organization": {
