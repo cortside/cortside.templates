@@ -7,7 +7,7 @@ rm -Force -Recurse temp
 dotnet new --uninstall cortside.templates
 dotnet new --install .\artifacts\*.nupkg
 
-dotnet new webapi --output ./temp --name Foo.Bar
+dotnet new cortside-api --output ./temp --name Foo.Bar
 
 dotnet build ./temp/src
 dotnet test ./temp/src
