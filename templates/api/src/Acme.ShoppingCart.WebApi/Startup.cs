@@ -1,7 +1,7 @@
 using Acme.ShoppingCart.BootStrap;
 using Acme.ShoppingCart.WebApi.Filters;
 using Acme.ShoppingCart.WebApi.Installers;
-using Acme.ShoppingCart.WebApi.Middlewares;
+using Acme.ShoppingCart.WebApi.Middleware;
 using Cortside.Common.BootStrap;
 using Cortside.Common.Correlation;
 using Cortside.Common.Json;
