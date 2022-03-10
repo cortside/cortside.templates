@@ -1,7 +1,7 @@
 ﻿using Acme.ShoppingCart.Domain.Entities;
 using Acme.ShoppingCart.Dto;
 
-namespace Acme.ShoppingCart.DomainService.Mappers {
+namespace Acme.ShoppingCart.Facade.Mappers {
     public class CustomerMapper {
         private readonly SubjectMapper subjectMapper;
 
@@ -9,7 +9,7 @@ namespace Acme.ShoppingCart.DomainService.Mappers {
             this.subjectMapper = subjectMapper;
         }
 
-        public CustomerDto MapToDto(Customer entity) {
+        public CustomerDto? MapToDto(Customer entity) {
             if (entity == null) {
                 return null;
             }
@@ -26,12 +26,5 @@ namespace Acme.ShoppingCart.DomainService.Mappers {
                 LastModifiedSubject = subjectMapper.MapToDto(entity.LastModifiedSubject),
             };
         }
-
-        //public void UpdateCustomerEntity(Customer entity, CustomerDto dto) {
-        //    entity.FirstName = dto.FirstName;
-        //    entity.LastName = dto.LastName;
-        //    entity.Age = dto.Age;
-        //    this.addressServiceMapper.UpdateAddress(entity.Address, dto.Address);
-        //}
     }
 }

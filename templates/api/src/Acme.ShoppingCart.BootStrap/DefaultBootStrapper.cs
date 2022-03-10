@@ -10,11 +10,13 @@ namespace Acme.ShoppingCart.BootStrap {
                 new ExampleHostedServiceInstaller(),
                 new HealthInstaller(),
                 new DbContextInstaller(),
-                new DomainInstaller(),
+                new RepositoryInstaller(),
+                new DomainServiceInstaller(),
                 new MiniProfilerInstaller(),
                 new DistributedLockInstaller(),
                 new EncryptionInstaller(),
-                new CatalogClientInstaller()
+                new CatalogClientInstaller(),
+                new FacadeInstaller()
             };
         }
     }
