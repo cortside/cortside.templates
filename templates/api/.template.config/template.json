@@ -15,19 +15,28 @@
   "sourceName":"Acme.ShoppingCart",
   "preferNameDirectory":true,
   "symbols":{
-    "organization":{
+    "company":{
       "type":"parameter",
       "replaces":"Acme",
       "defaultValue":"Acme",
       "FileRename":"Acme",
       "isRequired":true
     },
-    "service":{
+    "product":{
       "type":"parameter",
       "replaces":"ShoppingCart",
       "defaultValue":"ShoppingCart",
       "FileRename":"ShoppingCart",
       "isRequired":true
+    },
+    "service": {
+      "type": "generated",
+      "generator": "casing",
+      "parameters": {
+        "source": "product",
+        "toLower": true
+      },
+      "replaces": "shoppingcart"
     }
   },
   "tags":{
