@@ -6,11 +6,21 @@
   "name": "ASP.NET Core Template",
   "shortName": "cortside-api",
   "sourceName": "Acme.ShoppingCart",
+  "preferNameDirectory": true,
     "symbols": {
         "organization": {
             "type": "parameter",
             "replaces": "Acme",
-            "defaultValue": "Acme"
+            "defaultValue": "Acme",
+		"FileRename": "Acme",
+		"isRequired": true
+        },
+        "service": {
+            "type": "parameter",
+            "replaces": "ShoppingCart",
+            "defaultValue": "ShoppingCart"
+		"FileRename": "ShoppingCart",
+		"isRequired": true
         }
     },  
   "tags": {
