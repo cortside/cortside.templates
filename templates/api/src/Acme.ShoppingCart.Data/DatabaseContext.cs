@@ -1,11 +1,12 @@
 using Acme.ShoppingCart.Domain.Entities;
+using Cortside.AspNetCore.EntityFramework;
 using Cortside.Common.Security;
 using Cortside.DomainEvent.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
 namespace Acme.ShoppingCart.Data {
     public class DatabaseContext : UnitOfWorkContext, IDatabaseContext {
-        public DatabaseContext(DbContextOptions<DatabaseContext> options, ISubjectPrincipal subjectPrincipal) : base(options, subjectPrincipal) {
+        public DatabaseContext(DbContextOptions options, ISubjectPrincipal subjectPrincipal) : base(options, subjectPrincipal) {
         }
 
         public DbSet<Customer> Customers { get; set; }
