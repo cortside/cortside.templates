@@ -8,4 +8,6 @@ dotnet new cortside-api-powershell --force
 dotnet new cortside-api-editorconfig --force
 
 # update dockerfile and supporting shell and powershell scripts
-#dotnet new cortside-api-deployment --force
+if (Test-Path -path "deploy") {
+	dotnet new cortside-api-deploy --force
+}

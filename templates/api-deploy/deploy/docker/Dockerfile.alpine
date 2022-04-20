@@ -1,0 +1,90 @@
+ARG dotnetsdk
+ARG dotnetframework
+
+# use the sdk to build/test, but later we'll use runtime for published image
+FROM mcr.microsoft.com/dotnet/sdk:$dotnetsdk-alpine AS build
+ARG buildconfiguration
+ARG nugetfeed
+ARG sonarscannerversion
+
+RUN dotnet --info
+
+# Take care of certificates so we can "dotnet restore" in VDI.
+RUN sed -i 's/https/http/g' /etc/apk/repositories
+RUN apk update &&  apk add ca-certificates && apk add bash tzdata nodejs npm git openjdk11 nss && rm -rf /var/cache/apk/*
+COPY ./certs/* /usr/local/share/ca-certificates/
+WORKDIR /usr/local/share/ca-certificates/
+RUN update-ca-certificates
+
+## install additional dotnet tools
+RUN dotnet tool install --global dotnet-sonarscanner --version ${sonarscannerversion}
+ENV PATH="${PATH}:/root/.dotnet/tools"
+
+COPY src/ /app/src/
+WORKDIR /app/src
+
+RUN dotnet restore --source $nugetfeed --source https://api.nuget.org/v3/index.json 
+
+# Run unit tests
+ARG branch
+ARG imageversion
+ARG sonarhost
+ARG sonartoken
+ARG projectname
+
+# set to use teamcity messaging for test logger
+ENV TEAMCITY_VERSION="1.1" 
+ENV ASPNETCORE_ENVIRONMENT=Deployment
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+#RUN find ./ -iname "*test*.csproj" | xargs -I % dotnet test % /p:Exclude="[xunit*]*" /p:ParallelizeTestCollections=true /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger:"teamcity;verbosity=normal" --configuration ${buildconfiguration}
+# Removing the integration tests due to hanging builds. SVC-53 created to look into and fix issue. Line above runs them.
+#RUN find ./ \( -iname "*test*.csproj" ! -iname "*IntegrationTests*" \) | xargs -I % dotnet test % /p:Exclude="[xunit*]*" /p:ParallelizeTestCollections=true /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger:"teamcity;verbosity=normal" --configuration ${buildconfiguration}
+
+
+RUN export SONAR_SCANNER_OPTS="-Xmx4096m" \
+    && echo "branch=$branch" \
+    && target=$(if [ "$branch" = "develop" ]; then echo "master"; else echo "develop"; fi;) && echo "target=$target" \
+    && targetArg=$(if [ "$branch" = "master" ]; then echo ""; else echo "/d:sonar.branch.target=$target"; fi;) && echo "targetArg=$targetArg" \
+    && dotnet sonarscanner begin /k:"$(echo $projectname | tr '[:upper:]' '[:lower:]')" \
+    /d:sonar.host.url="$sonarhost" \
+    /d:sonar.login="$sonartoken" \
+    /v:"$imageversion" \
+    /d:sonar.cs.opencover.reportsPaths="**/*.opencover.xml" \
+    /d:sonar.coverage.exclusions="**/*Test*.cs,**/Cortside.LoanServicing.WebApi/Models/**/*,**/Migrations/*" \
+    /d:sonar.exclusions="**/*Test*.cs,**/Cortside.LoanServicing.WebApi/Models/**/*,**/Migrations/*,**/*Api.xml" \
+    /d:sonar.branch.name="$branch" $targetArg \
+    && dotnet build \
+    && find ./ \( -iname "*test*.csproj" ! -iname "*IntegrationTests*" \) | xargs -I % dotnet test % /p:Exclude="[xunit*]*" /p:ParallelizeTestCollections=true /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger:"teamcity;verbosity=normal" --configuration ${buildconfiguration} \
+    && dotnet sonarscanner end /d:sonar.login="$sonartoken" \
+    && dotnet publish ./Cortside.${projectname}.WebApi -p:Version=$(echo $imageversion | cut -f 1 -d '-') -o out -r linux-musl-x64
+
+# generate swagger.diff.json for build artifact
+WORKDIR /app/src/Cortside.${projectname}.WebApi.IntegrationTests/swagger-diff
+RUN chmod a+x ./swagger-diff.sh && ./swagger-diff.sh
+
+## Build the runtime environment
+FROM mcr.microsoft.com/dotnet/runtime:$dotnetframework-alpine AS runtime
+ARG projectname
+ENV configpath /app/appsettings.json
+
+RUN sed -i 's/https/http/g' /etc/apk/repositories
+RUN apk update && apk add jq curl bash tzdata icu-libs ca-certificates && rm -rf /var/cache/apk/*
+
+COPY ./deploy/sh/startup.sh /startup.sh
+RUN chmod a+x startup.sh 
+
+COPY ./certs/* /usr/local/share/ca-certificates/
+WORKDIR /usr/local/share/ca-certificates/
+RUN update-ca-certificates
+
+# snag swagger.diff.json for build artifact
+COPY --from=build /buildartifacts/ /buildartifacts/
+
+WORKDIR /app
+COPY --from=build /app/src/out ./
+ENV ASPNETCORE_URLS=http://+:5000
+ENV ASPNETCORE_ENVIRONMENT=Deployment
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+
+EXPOSE 5000/tcp
+CMD ["/startup.sh"]
