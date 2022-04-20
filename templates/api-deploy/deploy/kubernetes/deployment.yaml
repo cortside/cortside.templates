@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: #{k8sNamespace}
+  name: #{serviceName}
+  labels:
+    app: #{serviceName}
+spec:
+  replicas: #{containercount}
+  selector:
+    matchLabels:
+      app: #{serviceName}
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: #{serviceName}
+    spec:
+      containers:
+        - image: #{k8sDockerImage}
+          name: #{serviceName}
+          env:
+          ports:
+            - name: http
+              containerPort: 5000
+          resources:
+            requests:
+              memory: 128Mi
+            limits:
+              memory: 384Mi
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 6
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+              scheme: HTTP
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+          volumeMounts:
+            - mountPath: /app/appsettings.json
+              name: appsettings
+              subPath: appsettings.json
+      restartPolicy: Always
+      volumes:
+        - name: appsettings
+          configMap:
+            name: #{serviceName}-appsettings
+      imagePullSecrets:
+        - name: regcred
+      nodeSelector:
+        kubernetes.io/os: linux
