@@ -9,9 +9,9 @@
     "Web",
     "Cortside"
   ],
-  "identity":"AspNetCore.Template.Scripts",
-  "name":"ASP.NET Core Template Scripts",
-  "shortName":"cortside-api-scripts",
+  "identity":"AspNetCore.Template.Powershell",
+  "name":"ASP.NET Core Template Powershell",
+  "shortName":"cortside-api-powershell",
   "sourceName":"Acme.ShoppingCart",
   "preferNameDirectory":true,
   "tags":{
