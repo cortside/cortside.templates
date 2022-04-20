@@ -9,5 +9,5 @@ dotnet new cortside-api-editorconfig --force
 
 # update dockerfile and supporting shell and powershell scripts
 if (Test-Path -path "deploy") {
-	dotnet new enerbank-api-deploy --force
+	dotnet new cortside-api-deploy --force
 }
