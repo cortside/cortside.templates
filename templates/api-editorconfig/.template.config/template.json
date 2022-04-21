@@ -13,7 +13,33 @@
   "name":"ASP.NET Core Template editorconfig",
   "shortName":"cortside-api-editorconfig",
   "sourceName":"Acme.ShoppingCart",
+  "sourceName":"Acme.ShoppingCart",
   "preferNameDirectory":true,
+  "symbols":{
+    "company":{
+      "type":"parameter",
+      "replaces":"Acme",
+      "defaultValue":"Acme",
+      "FileRename":"Acme",
+      "isRequired":true
+    },
+    "product":{
+      "type":"parameter",
+      "replaces":"ShoppingCart",
+      "defaultValue":"ShoppingCart",
+      "FileRename":"ShoppingCart",
+      "isRequired":true
+    },
+    "service": {
+      "type": "generated",
+      "generator": "casing",
+      "parameters": {
+        "source": "product",
+        "toLower": true
+      },
+      "replaces": "shoppingcart"
+    }
+  },
   "tags":{
     "language":"C#",
     "type":"project"
