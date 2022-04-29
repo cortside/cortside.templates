@@ -1,0 +1,59 @@
+{
+  "$schema":"http://json.schemastore.org/template",
+  "author":"Cortside",
+  "classifications":[
+    "ASP.NET Core",
+    "Core",
+    "MVC",
+    "Template",
+    "Web",
+    "Cortside"
+  ],
+  "identity":"AspNetCore.Template.deploy",
+  "name":"ASP.NET Core Template deploy",
+  "shortName":"cortside-api-deploy",
+  "sourceName":"Acme.ShoppingCart",
+  "sourceName":"Acme.ShoppingCart",
+  "preferNameDirectory":true,
+  "symbols":{
+    "company":{
+      "type":"parameter",
+      "replaces":"Acme",
+      "defaultValue":"Acme",
+      "FileRename":"Acme",
+      "isRequired":true
+    },
+    "product":{
+      "type":"parameter",
+      "replaces":"ShoppingCart",
+      "defaultValue":"ShoppingCart",
+      "FileRename":"ShoppingCart",
+      "isRequired":true
+    },
+    "service": {
+      "type": "generated",
+      "generator": "casing",
+      "parameters": {
+        "source": "product",
+        "toLower": true
+      },
+      "replaces": "shoppingcart"
+    }
+  },
+  "tags":{
+    "language":"C#",
+    "type":"project"
+  },
+  "sources":[
+    {
+      "modifiers":[
+        {
+          "exclude":[
+            "src/.vs/**",
+            ".template_config/**"
+          ]
+        }
+      ]
+    }
+  ]
+}
