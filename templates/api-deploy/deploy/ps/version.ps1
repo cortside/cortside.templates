@@ -4,7 +4,7 @@ $dotnetsdk = "6.0"
 $dotnetframework = "6.0"
 
 #Build variables
-$projectname = "EnerBank.Rebate" # needed for sln files
+$projectname = "Acme.ShoppingCart" # needed for sln files
 $image = $projectname.ToLower() # needs to be lowercase
 $acr = "enerbank.azurecr.io"
 $v = "${version}"
