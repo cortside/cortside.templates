@@ -1,27 +1,29 @@
-using System.Linq;
+using System.Collections.Generic;
+using System.IO.Compression;
+using System.Reflection;
 using Acme.ShoppingCart.BootStrap;
-using Acme.ShoppingCart.WebApi.Filters;
 using Acme.ShoppingCart.WebApi.Installers;
-using Acme.ShoppingCart.WebApi.Middleware;
-using Acme.ShoppingCart.WebApi.Utils;
-using Cortside.Common.BootStrap;
+using Cortside.AspNetCore;
+using Cortside.AspNetCore.AccessControl;
+using Cortside.AspNetCore.ApplicationInsights;
+using Cortside.AspNetCore.Auditable;
+using Cortside.AspNetCore.Auditable.Middleware;
+using Cortside.AspNetCore.Filters;
+using Cortside.AspNetCore.Swagger;
 using Cortside.Common.Correlation;
 using Cortside.Common.Json;
 using Cortside.Common.Messages.Filters;
 using Cortside.Health.Controllers;
-using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Mvc.Routing;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -32,19 +34,11 @@ namespace Acme.ShoppingCart.WebApi {
     /// Startup
     /// </summary>
     public class Startup {
-        private readonly BootStrapper bootstrapper = null;
-
         /// <summary>
         /// Startup
         /// </summary>
         /// <param name="configuration"></param>
         public Startup(IConfiguration configuration) {
-            bootstrapper = new DefaultApplicationBootStrapper();
-            bootstrapper.AddInstaller(new IdentityServerInstaller());
-            bootstrapper.AddInstaller(new NewtonsoftInstaller());
-            bootstrapper.AddInstaller(new SubjectPrincipalInstaller());
-            bootstrapper.AddInstaller(new SwaggerInstaller());
-            bootstrapper.AddInstaller(new ModelMapperInstaller());
             Configuration = configuration;
         }
 
@@ -58,39 +52,42 @@ namespace Acme.ShoppingCart.WebApi {
         /// </summary>
         /// <param name="services"></param>
         public void ConfigureServices(IServiceCollection services) {
-            services.AddSingleton<ITelemetryInitializer, AppInsightsInitializer>();
-            services.AddApplicationInsightsTelemetry(o => {
-                o.InstrumentationKey = Configuration["ApplicationInsights:InstrumentationKey"];
-                o.EnableAdaptiveSampling = false;
-                o.EnableActiveTelemetryConfigurationSetup = true;
-            });
+            var serviceName = Configuration["Service:Name"];
+            var instrumentationKey = Configuration["ApplicationInsights:InstrumentationKey"];
+            services.AddApplicationInsights(serviceName, instrumentationKey);
+
+            // add response compression using gzip and brotli compression
+            services.AddDefaultResponseCompression(CompressionLevel.Optimal);
+
+            // add SubjectPrincipal for auditing
+            services.AddSubjectPrincipal();
 
             services.AddResponseCaching();
-            services.AddResponseCompression(options => {
-                options.Providers.Add<GzipCompressionProvider>();
-            });
-
             services.AddMemoryCache();
             services.AddDistributedMemoryCache();
             services.AddCors();
+            services.AddOptions();
 
             services.AddControllers(options => {
-                options.CacheProfiles.Add("default", new CacheProfile {
+                options.CacheProfiles.Add("Default", new CacheProfile {
                     Duration = 30,
                     Location = ResponseCacheLocation.Any
                 });
-                //https://stackoverflow.com/questions/55127637/globally-modelstate-validation-in-asp-net-core-mvc
                 options.Filters.Add<MessageExceptionResponseFilter>();
                 options.Conventions.Add(new ApiControllerVersionConvention());
             })
             .AddNewtonsoftJson(options => {
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                options.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
                 options.SerializerSettings.Converters.Add(new StringEnumConverter(new CamelCaseNamingStrategy()));
-                options.SerializerSettings.Converters.Add(new IsoDateTimeConverter {
-                    DateTimeFormat = "yyyy'-'MM'-'dd'T'HH':'mm':'ss'Z'"
-                });
+
+                options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                options.SerializerSettings.MissingMemberHandling = MissingMemberHandling.Ignore;
+                options.SerializerSettings.NullValueHandling = NullValueHandling.Include;
+                options.SerializerSettings.DefaultValueHandling = DefaultValueHandling.Include;
+
+                options.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+                options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+                options.SerializerSettings.DateParseHandling = DateParseHandling.DateTimeOffset;
                 options.SerializerSettings.Converters.Add(new IsoTimeSpanConverter());
             })
             .PartManager.ApplicationParts.Add(new AssemblyPart(typeof(HealthController).Assembly));
@@ -99,13 +96,33 @@ namespace Acme.ShoppingCart.WebApi {
                 options.LowercaseUrls = true;
             });
 
-            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
-            services.AddScoped(sp => {
-                return sp.GetRequiredService<IUrlHelperFactory>().GetUrlHelper(sp.GetRequiredService<IActionContextAccessor>().ActionContext);
-            });
+            // Add the access control using IdentityServer and PolicyServer
+            services.AddAccessControl(Configuration);
 
-            services.AddSingleton(Configuration);
-            bootstrapper.InitIoCContainer(Configuration as IConfigurationRoot, services);
+            // Add swagger with versioning and OpenID Connect configuration using Newtonsoft
+            var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            var versions = new List<OpenApiInfo> {
+                new OpenApiInfo {
+                    Version = "v1",
+                    Title = "Acme.ShoppingCart API",
+                    Description = "Acme.ShoppingCart API",
+                },
+                new OpenApiInfo {
+                    Version = "v2",
+                    Title = "Acme.ShoppingCart API",
+                    Description = "Acme.ShoppingCart API",
+                }
+            };
+            services.AddSwagger(Configuration, xmlFile, versions);
+
+            // warm all the serivces up, can chain these together if needed
+            services.AddStartupTask<WarmupServicesStartupTask>();
+
+            // setup and register boostrapper and it's installers
+            services.AddBootStrapper<DefaultApplicationBootStrapper>(Configuration, o => {
+                o.AddInstaller(new NewtonsoftInstaller());
+                o.AddInstaller(new ModelMapperInstaller());
+            });
         }
 
         /// <summary>
@@ -118,29 +135,10 @@ namespace Acme.ShoppingCart.WebApi {
             app.UseMiniProfiler();
             app.UseMiddleware<CorrelationMiddleware>();
 
-            app.UseSwagger();
-            app.UseSwaggerUI(options => {
-                options.RoutePrefix = "swagger";
-                options.ShowExtensions();
-                options.ShowCommonExtensions();
-                options.EnableValidator();
-                options.EnableFilter();
-                options.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.List);
+            app.UseResponseCompression();
+            app.UseResponseCaching();
 
-                foreach (var description in provider.ApiVersionDescriptions) {
-                    var version = description.GroupName.ToLowerInvariant();
-                    options.SwaggerEndpoint($"/swagger/{version}/swagger.json", "Acme.ShoppingCart Api " + version.ToUpper());
-                }
-            });
-
-            foreach (var groupName in provider.ApiVersionDescriptions.Select(x => x.GroupName)) {
-                app.UseReDoc(c => {
-                    var version = groupName.ToLowerInvariant();
-                    c.DocumentTitle = $"Acme.ShoppingCart Api Documentation {groupName.ToUpperInvariant()}";
-                    c.RoutePrefix = $"api-docs/{version}";
-                    c.SpecUrl = $"/swagger/{version}/swagger.json";
-                });
-            }
+            app.UseSwagger("Acme.ShoppingCart Api", provider);
 
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
@@ -157,6 +155,7 @@ namespace Acme.ShoppingCart.WebApi {
 
             // intentionally set after UseAuthentication
             app.UseMiddleware<SubjectMiddleware>();
+
             app.UseSerilogRequestLogging();
 
             app.UseRouting();

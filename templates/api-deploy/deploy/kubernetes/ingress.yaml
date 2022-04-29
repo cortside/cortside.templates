@@ -1,0 +1,18 @@
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  namespace: #{k8sNamespace}
+  name: #{serviceName}
+spec:
+  entryPoints:
+    - http
+    - https
+  routes:
+    - kind: Rule
+      match: Host(`#{traefikHostname}`) && PathPrefix(`/api`, `/swagger`)
+      middlewares:
+        - name: responseheaders
+      services:
+        - name: #{serviceName}
+          port: 80
+  tls: {}
