@@ -50,16 +50,16 @@ RUN export SONAR_SCANNER_OPTS="-Xmx4096m" \
     /d:sonar.login="$sonartoken" \
     /v:"$imageversion" \
     /d:sonar.cs.opencover.reportsPaths="**/*.opencover.xml" \
-    /d:sonar.coverage.exclusions="**/*Test*.cs,**/Cortside.LoanServicing.WebApi/Models/**/*,**/Migrations/*" \
-    /d:sonar.exclusions="**/*Test*.cs,**/Cortside.LoanServicing.WebApi/Models/**/*,**/Migrations/*,**/*Api.xml" \
+    /d:sonar.coverage.exclusions="**/*Test*.cs,**/Acme.ShoppingCart.WebApi/Models/**/*,**/Migrations/*" \
+    /d:sonar.exclusions="**/*Test*.cs,**/Acme.ShoppingCart.WebApi/Models/**/*,**/Migrations/*,**/*Api.xml" \
     /d:sonar.branch.name="$branch" $targetArg \
     && dotnet build \
     && find ./ \( -iname "*test*.csproj" ! -iname "*IntegrationTests*" \) | xargs -I % dotnet test % /p:Exclude="[xunit*]*" /p:ParallelizeTestCollections=true /p:CollectCoverage=true /p:CoverletOutputFormat=opencover --logger:"teamcity;verbosity=normal" --configuration ${buildconfiguration} \
     && dotnet sonarscanner end /d:sonar.login="$sonartoken" \
-    && dotnet publish ./Cortside.${projectname}.WebApi -p:Version=$(echo $imageversion | cut -f 1 -d '-') -o out -r linux-musl-x64
+    && dotnet publish ./Acme.${projectname}.WebApi -p:Version=$(echo $imageversion | cut -f 1 -d '-') -o out -r linux-musl-x64
 
 # generate swagger.diff.json for build artifact
-WORKDIR /app/src/Cortside.${projectname}.WebApi.IntegrationTests/swagger-diff
+WORKDIR /app/src/Acme.${projectname}.WebApi.IntegrationTests/swagger-diff
 RUN chmod a+x ./swagger-diff.sh && ./swagger-diff.sh
 
 ## Build the runtime environment
