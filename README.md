@@ -39,3 +39,5 @@ The template "ASP.NET Core Template" was created successfully.
 ```
 
 The template will be create a new directory using the `--name` value for `Company.Product`.
+
+FYI: you can add --force to force overwriting existing files
