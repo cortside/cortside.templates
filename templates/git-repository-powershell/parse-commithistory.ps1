@@ -1,0 +1,1 @@
+cat .\commithistory.txt | sort | grep -i "schaefer" | grep -v "Merge pull request" | grep -v "generate changelog" | grep -v "Merge branch" | grep -v "update version" | grep -v "merge from develop" | grep -v "Merged in release" | grep -v "Pull request #"
