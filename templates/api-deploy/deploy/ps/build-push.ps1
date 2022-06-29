@@ -4,9 +4,7 @@ Param
 	[Parameter(Mandatory = $false)][string]$branch,
 	[Parameter(Mandatory = $false)][string]$dockerpath = "Dockerfile.*",
 	[Parameter(Mandatory = $true)][string]$dockercontext,
-	[Parameter(Mandatory = $false)][string]$linuxdocker,
 	[Parameter(Mandatory = $false)][string]$buildconfiguration = "Debug",
-	[Parameter(Mandatory = $false)][string]$windowsdocker,
 	[Parameter(Mandatory = $false)][ValidateSet("true", "false")][string]$local = "true",
 	[Parameter(Mandatory = $false)][string]$OctopusEndpoint,
 	[Parameter(Mandatory = $false)][string]$OctopusApiKey,
@@ -43,9 +41,7 @@ Write-Verbose $version
 Write-Verbose "branch: $branch"
 Write-Verbose "dockerpath: $dockerpath"
 Write-Verbose "dockercontext: $dockercontext"
-Write-Verbose "linuxdocker: $linuxdocker"
 Write-Verbose "buildconfiguration: $buildconfiguration"
-Write-Verbose "windowsdocker: $windowsdocker"
 Write-Verbose "local: $local"
 Write-Verbose "OctopusEndpoint: $OctopusEndpoint"
 Write-Verbose "nugetfeed: $nugetfeed"
@@ -69,14 +65,11 @@ else {
 }
 
 if ($local -eq "true" ) {
-	$linuxdocker = $null
-	$windowsdocker = $null
 	$env:SonarToken = $localsonartoken
 	$env:SonarHost = $localsonarhost
 	$branch = Invoke-Exe -cmd git -args "rev-parse --abbrev-ref HEAD"
 } 
 else {
-	Write-Output "`tDocker Hosts:", "`tLinux: $linuxdocker", "`tWindows: $windowsdocker" 
 	Write-Output "====`n Docker Login`n ===="
 	docker login $acr -u $username -p $password
 }
@@ -87,22 +80,11 @@ foreach ($dockerfile in $dockerFiles) {
 	$dockerFileName = $dockerfile.name 
 	$HostOS = $dockerFileName.split(".").split()[-1]
 	Write-Output "Building $dockerFileName"
-	Write-Output "HostOS is $HostOS"
-
-	if ($HostOS -ieq "alpine" -or $HostOS -ieq "ubuntu") {
-		Write-Output "Using Linux docker host"
-		$env:docker_host = "$null"
-	}
-	else {
-		Write-Output "Using Windows docker host"
-		$env:docker_host = "tcp://$windowsdocker"
-	}
-
 	$imageversion = "$v-$HostOS"
+
 	#Docker build and tag
-	Write-Output "Build Docker Host: $env:docker_host"
 	Write-Output "Dockerfile used: $dockerFileName"
-	$dockerbuildargs = "build --rm --add-host=oa-utility.cortside.local:10.10.10.207 --build-arg `"buildconfiguration=$buildconfiguration`" --build-arg `"nugetfeed=$nugetfeed`" --build-arg `"dotnetruntime=$dotnetruntime`" --build-arg `"dotnetframework=$dotnetframework`" --build-arg `"branch=$branch`" --build-arg `"imageversion=$imageversion`" --build-arg `"sonarhost=$($env:SonarHost)`" --build-arg `"sonartoken=$($env:SonarToken)`" --build-arg `"projectname=$($projectname)`" --build-arg `"sonarscannerversion=$($sonarscannerversion)`" --build-arg `"sqlreportZipFile=$($sqlreportZipFile)`" -t ${acr}/${image}:1.0-build -f deploy/docker/$dockerFileName $dockercontext"
+	$dockerbuildargs = "build --rm --add-host=oa-utility.cortside.local:10.10.10.207 --build-arg `"buildconfiguration=$buildconfiguration`" --build-arg `"nugetfeed=$nugetfeed`" --build-arg `"dotnetruntime=$dotnetruntime`" --build-arg `"dotnetframework=$dotnetframework`" --build-arg `"branch=$branch`" --build-arg `"imageversion=$imageversion`" --build-arg `"sonarhost=$($env:SonarHost)`" --build-arg `"sonartoken=$($env:SonarToken)`" --build-arg `"sonarkey=$($sonarkey)`" --build-arg `"projectname=$($projectname)`" --build-arg `"sonarscannerversion=$($sonarscannerversion)`" -t ${acr}/${image}:${imageversion} -f deploy/docker/$dockerFileName $dockercontext"
 	Invoke-Exe -cmd docker -args $dockerbuildargs
 
 	#Docker push images to repo
@@ -110,11 +92,7 @@ foreach ($dockerfile in $dockerFiles) {
 		write-output "This is a local build and will not need to push."
 	}
 	else {
-		$imageversion = "$v-$HostOS"
 		write-output "pushing ${acr}/${image}:${imageversion}"
-		$dockertagargs = "tag ${acr}/${image}:1.0-build ${acr}/${image}:${imageversion}"
-		Invoke-Exe -cmd docker -args $dockertagargs
-
 		$dockerpushargs = "push ${acr}/${image}:${imageversion}"
 		Invoke-Exe -cmd docker -args $dockerpushargs
 
@@ -131,11 +109,11 @@ foreach ($dockerfile in $dockerFiles) {
 
 
 Compress-Archive -Force -Path $PSScriptRoot\..\kubernetes\* -CompressionLevel Fastest -DestinationPath $PSScriptRoot\$projectname.$v.zip
-Compress-Archive -Path $PSScriptRoot\version.ps1 -Update -DestinationPath $PSScriptRoot\$projectname.$v.zip
 Compress-Archive -Path $PSScriptRoot\..\..\appsettings.json -Update -DestinationPath $PSScriptRoot\$projectname.$v.zip
 Compress-Archive -Path $PSScriptRoot\..\..\update-database.ps1 -Update -DestinationPath $PSScriptRoot\$projectname.$v.zip
-#Move-Item -Path $PSScriptRoot\src\sql -Destination $PSScriptRoot\sql
-Compress-Archive -Path $PSScriptRoot\..\..\sql -Update -DestinationPath $PSScriptRoot\$projectname.$v.zip
+Copy-Item -Path $PSScriptRoot\..\..\src\sql -Destination $PSScriptRoot\temp\src\sql -Recurse # to preserve structure for the script
+Compress-Archive -Path $PSScriptRoot\temp\src -Update -DestinationPath $PSScriptRoot\$projectname.$v.zip
+Remove-Item -Path $PSScriptRoot\temp -Recurse -Force
 Write-Output "`n=== Created zip package $projectname.$v.zip in $PSScriptRoot ===`n"
 Write-Host "##teamcity[setParameter name='env.ProjectName' value='$projectname']"
 Write-Output "End of Build"
