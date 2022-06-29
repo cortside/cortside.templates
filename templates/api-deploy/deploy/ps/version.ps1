@@ -10,6 +10,7 @@ $acr = "cortside.azurecr.io"
 $v = "${version}"
 
 #SonarQube
-$sonarscannerversion = "5.4.1"
-$localsonartoken = "7945ad74cb74c64ad4257de571fec7720495bf13"
-$localsonarhost = "http://10.105.10.19:9000"
+$sonarscannerversion = "5.5.3"
+$sonarkey = "acme_acme.shoppingcart"
+$localsonartoken = "sometoken"
+$localsonarhost = "somehost"
