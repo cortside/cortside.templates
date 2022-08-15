@@ -18,7 +18,7 @@ ASP.NET Core Template Powershell    cortside-api-powershell    [C#]      ASP.NET
 
 Create new project (created in new Company.Product directory):
 ```
-dotnet new webapi --name Company.Product --company Company --product Product
+dotnet new cortside-api --name Company.Product --company Company --product Product
 ```
 
 Update .editorconfig in already created project: 
