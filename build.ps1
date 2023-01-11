@@ -11,10 +11,11 @@ if (Test-Path temp) {
 dotnet new uninstall cortside.templates
 dotnet new install .\artifacts\*.nupkg
 
-dotnet new cortside-api --output ./temp --name Foo.Bar --company Foo --product Bar
+dotnet new cortside-api --output ./temp/api --name Foo.Bar --company Foo --product Bar
+dotnet new cortside-web --output ./temp/web --name Foo.Bar --company Foo --product Bar
 
-dotnet build ./temp/src
-dotnet test ./temp/src
+dotnet build ./temp/api/src
+dotnet test ./temp/api/src
 
 if (Test-Path temp) {
 	rm -Force -Recurse temp

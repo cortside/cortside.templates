@@ -1,0 +1,57 @@
+{
+  "$schema":"http://json.schemastore.org/template",
+  "author":"Cortside",
+  "classifications":[
+    "ASP.NET Core",
+    "Core",
+    "MVC",
+    "Template",
+    "Web",
+    "Cortside"
+  ],
+  "identity":"AspNetCore.Template.Web",
+  "name":"ASP.NET Core Web Template",
+  "shortName":"cortside-web",
+  "sourceName":"Acme.ShoppingCart.Web",
+  "preferNameDirectory":true,
+  "symbols":{
+    "company":{
+      "type":"parameter",
+      "replaces":"Acme",
+      "defaultValue":"Acme",
+      "FileRename":"Acme",
+      "isRequired":true
+    },
+    "product":{
+      "type":"parameter",
+      "replaces":"ShoppingCart",
+      "defaultValue":"ShoppingCart",
+      "FileRename":"ShoppingCart",
+      "isRequired":true
+    },
+    "service": {
+      "type": "generated",
+      "generator": "casing",
+      "parameters": {
+        "source": "product",
+        "toLower": true
+      },
+      "replaces": "shoppingcart"
+    }
+  },
+  "tags":{
+    "language":"angular",
+    "type":"project"
+  },
+  "sources":[
+    {
+      "modifiers":[
+        {
+          "exclude":[
+            ".template_config/**"
+          ]
+        }
+      ]
+    }
+  ]
+}
