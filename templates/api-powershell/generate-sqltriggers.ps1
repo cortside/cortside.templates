@@ -84,7 +84,13 @@ Write-Host "creating $triggergenDbName and applying all migrations"
 
 invoke-sqlcmd -ServerInstance "$server" -Query "IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = '$triggergenDbName') BEGIN CREATE database [$triggergenDbName] END"
 
-$dbconfig = get-content dbconfig.json | ConvertFrom-Json
+$dbconfig = if (Test-Path config.json) { get-content dbconfig.json | ConvertFrom-Json }
+
+$projectExcludeTables = ""
+if ($dbconfig?.triggers?.excludeTables -and $dbconfig?.triggers?.excludeTables.length -gt 0) { 
+	$tables = "'$($dbconfig.triggers.excludeTables -join "','")'"
+	$projectExcludeTables = " AND t.TABLE_NAME NOT IN ($tables)"
+}
 
 $repo = "Acme.ShoppingCart"
 $project = "src/$repo.Data"
@@ -187,6 +193,7 @@ left join (
 	WHERE tc.CONSTRAINT_TYPE = 'Primary Key' 
 ) pk on pk.TABLE_NAME=t.TABLE_NAME and pk.TABLE_SCHEMA=t.TABLE_SCHEMA
 WHERE t.TABLE_NAME NOT IN ('__EFMigrationsHistory', 'Audit', 'AuditLog', 'AuditLogs', 'AuditLogTransaction', 'sysdiagrams', 'DiagnosticLog', 'Outbox')
+$projectExcludeTables
 "@
 
 if ($username -eq "") {
