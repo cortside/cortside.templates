@@ -29,21 +29,21 @@ test: off
 build_script:
   - ps: ./build.ps1
 
-  after_build:
-- ps: >-
-    $branch = $ENV:APPVEYOR_REPO_BRANCH;
-    $fileVersion = $env:APPVEYOR_BUILD_VERSION;
-    if($branch -ne 'master') {
-        $fileVersion = "${fileVersion}-${branch}"; 
-    }
-    
-    $fileVersion = $fileVersion.replace("release/", "");
-    $fileVersion = $fileVersion.replace("feature/", "");
-    $fileVersion = $fileVersion.replace("bugfix/", "");
-    dotnet pack templates -o ((get-location).Path + '\artifacts') --no-build /property:Version=$fileVersion 
-    
+after_build:
+  - ps: >-
+      $branch = $ENV:APPVEYOR_REPO_BRANCH;
+      $fileVersion = $env:APPVEYOR_BUILD_VERSION;
+      if($branch -ne 'master') {
+          $fileVersion = "${fileVersion}-${branch}"; 
+      }
+
+      $fileVersion = $fileVersion.replace("release/", "");
+      $fileVersion = $fileVersion.replace("feature/", "");
+      $fileVersion = $fileVersion.replace("bugfix/", "");
+      dotnet pack templates -o ((get-location).Path + '\artifacts') --no-build /property:Version=$fileVersion
+
 artifacts:
-- path: artifacts\**\*.*
+  - path: artifacts\**\*.*
 
 deploy_script:
   - ps: dotnet nuget push .\artifacts\*.nupkg -k $env:NugetApiKey --source https://api.nuget.org/v3/index.json
