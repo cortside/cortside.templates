@@ -15,14 +15,14 @@ dotnet_csproj:
 pull_requests:
   do_not_increment_build_number: true
 
-branches:
-  only:
-    - master
-    - develop
-    - /feature\/.*/
+# branches:
+#   only:
+#     - master
+#     - develop
+#     - /feature\/.*/
 
-nuget:
-  disable_publish_on_pr: true
+# nuget:
+#   disable_publish_on_pr: false
 
 test: off
 
