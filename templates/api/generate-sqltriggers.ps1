@@ -89,8 +89,8 @@ invoke-sqlcmd -ServerInstance "$server" -Query "IF NOT EXISTS(SELECT * FROM sys.
 $repoConfig = if (Test-Path repository.json) { get-content repository.json | ConvertFrom-Json }
 
 $projectExcludeTables = ""
-if ($repoConfig.triggers.excludeTables.length -gt 0) { 
-	$tables = "'$($repoConfig.triggers.excludeTables -join "','")'"
+if ($repoConfig.database.triggers.excludeTables.length -gt 0) { 
+	$tables = "'$($repoConfig.database.triggers.excludeTables -join "','")'"
 	$projectExcludeTables = " AND t.TABLE_NAME NOT IN ($tables)"
 }
 
