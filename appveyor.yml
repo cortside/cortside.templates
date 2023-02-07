@@ -22,25 +22,12 @@ pull_requests:
 #     - /feature\/.*/
 
 nuget:
-  disable_publish_on_pr: false
+  disable_publish_on_pr: true
 
 test: off
 
 build_script:
   - ps: ./build.ps1
-
-after_build:
-  - ps: >-
-      $branch = $ENV:APPVEYOR_REPO_BRANCH;
-      $fileVersion = $env:APPVEYOR_BUILD_VERSION;
-      if($branch -ne 'master') {
-          $fileVersion = "${fileVersion}-${branch}"; 
-      }
-
-      $fileVersion = $fileVersion.replace("release/", "");
-      $fileVersion = $fileVersion.replace("feature/", "");
-      $fileVersion = $fileVersion.replace("bugfix/", "");
-      dotnet pack templates -o ((get-location).Path + '\artifacts') --no-build /property:Version=$fileVersion
 
 artifacts:
   - path: artifacts\**\*.*
