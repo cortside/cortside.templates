@@ -10,8 +10,8 @@ $ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';
 
 # this script is not safe to run on any machine other than a local dev machine, because of db deletion
 $server = "(LocalDB)\MSSQLLocalDB"
-$username=""
-$password=""
+$username = ""
+$password = ""
 if ((Test-Path 'env:MSSQL_SERVER') -and $server -eq "(LocalDB)\MSSQLLocalDB") {
 	$server = $env:MSSQL_SERVER
 
@@ -34,29 +34,32 @@ Write-Output @("
 ")
 
 if ($PSScriptRoot.Contains(' ')) { 
-    throw "Your working directory has a space in the path, which is not supported.  Wise up and move to C:\work\Acme.ShoppingCart! And have a wonderful work day!"
-    exit
+	throw "Your working directory has a space in the path, which is not supported.  Wise up and move to C:\work\Acme.ShoppingCart! And have a wonderful work day!"
+	exit
 }
 
 try {
-    Import-Module SqlServer -ErrorAction Stop
-}  catch {
-    Write-Output "Installing SqlServer module for powershell"
-    Install-PackageProvider -Name NuGet -Force
-    Install-Module -Name SqlServer -AllowClobber -Force
-    Import-Module SqlServer
+	Import-Module SqlServer -ErrorAction Stop
+}
+catch {
+	Write-Output "Installing SqlServer module for powershell"
+	Install-PackageProvider -Name NuGet -Force
+	Install-Module -Name SqlServer -AllowClobber -Force
+	Import-Module SqlServer
 }
 
 try {   
 	if ($username -eq "") {
 		Write-Output "Verifying SqlServer accessible at $server"
 		invoke-sqlcmd -ServerInstance $server -Query "select 'invoke-sqlcmd successful' AS SqlServerStatus" -QueryTimeout 5 -ConnectionTimeout 5 -ErrorAction Stop
-	} else {
+	}
+ else {
 		Write-Output "Verifying SqlServer accessible at $server with user $username"
 		invoke-sqlcmd -ServerInstance $server -username $username -password $password -Query "select 'invoke-sqlcmd successful' AS SqlServerStatus" -QueryTimeout 5 -ConnectionTimeout 5 -ErrorAction Stop
 	}
-} catch {
-    throw "Problem connecting to SqlServer at $server. Please confirm up and running and try again."
+}
+catch {
+	throw "Problem connecting to SqlServer at $server. Please confirm up and running and try again."
 }
 
 $deleteLocalDbQuery = @"
@@ -72,12 +75,35 @@ End
 Write-Host "deleting $triggergenDbName on $server, if it exists"
 if ($username -eq "") {
 	invoke-sqlcmd -ServerInstance $server -Query $deleteLocalDbQuery -ErrorAction Stop
-} else {
+}
+else {
 	invoke-sqlcmd -ServerInstance $server -username $username -password $password -Query $deleteLocalDbQuery -ErrorAction Stop
 }
 
 Write-Host "creating $triggergenDbName and applying all migrations"
-& "$PSScriptRoot/update-database.ps1" -CreateDatabase -database $triggergenDbName
+
+invoke-sqlcmd -ServerInstance "$server" -Query "IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = '$triggergenDbName') BEGIN CREATE database [$triggergenDbName] END"
+
+$dbconfig = if (Test-Path dbconfig.json) { get-content dbconfig.json | ConvertFrom-Json }
+
+$projectExcludeTables = ""
+if ($dbconfig.triggers.excludeTables.length -gt 0) { 
+	$tables = "'$($dbconfig.triggers.excludeTables -join "','")'"
+	$projectExcludeTables = " AND t.TABLE_NAME NOT IN ($tables)"
+}
+
+$repo = "Acme.ShoppingCart"
+$project = "src/$repo.Data"
+$startup = "src/$repo.WebApi"
+$context = "DatabaseContext"
+
+$schemafile = "triggerschema.sql"
+
+dotnet ef dbcontext script -p $project -s $startup -c $context --no-build -o $schemafile
+
+invoke-sqlcmd -serverInstance $server  -Database $triggergenDbName -inputFile "$schemafile"
+
+rm $schemafile
 
 $triggerTemplate = @"
 DROP TRIGGER IF EXISTS {{triggerName}}
@@ -167,11 +193,13 @@ left join (
 	WHERE tc.CONSTRAINT_TYPE = 'Primary Key' 
 ) pk on pk.TABLE_NAME=t.TABLE_NAME and pk.TABLE_SCHEMA=t.TABLE_SCHEMA
 WHERE t.TABLE_NAME NOT IN ('__EFMigrationsHistory', 'Audit', 'AuditLog', 'AuditLogs', 'AuditLogTransaction', 'sysdiagrams', 'DiagnosticLog', 'Outbox')
+$projectExcludeTables
 "@
 
 if ($username -eq "") {
 	$tables = Invoke-Sqlcmd -Query $sql -ServerInstance $server -Database $triggergenDbName
-} else {
+}
+else {
 	$tables = Invoke-Sqlcmd -Query $sql -ServerInstance $server -username $username -password $password -Database $triggergenDbName
 }
 
@@ -181,7 +209,8 @@ foreach ($table in $tables) {
 
 	if ($table.LastModifiedUserColumn -ne "") {
 		$lastmodifiedusercolumn = "SELECT TOP 1 @UserName=[$($table.LastModifiedUserColumn)] FROM inserted;"		
-	} else {
+	}
+ else {
 		$lastmodifiedusercolumn = "set @username = current_user"
 	}
 
@@ -195,7 +224,8 @@ ORDER BY ORDINAL_POSITION
 
 	if ($username -eq "") {
 		$columns = Invoke-Sqlcmd -Query $sql -ServerInstance $server -Database $triggergenDbName
-	} else {
+	}
+ else {
 		$columns = Invoke-Sqlcmd -Query $sql -ServerInstance $server -username $username -password $password -Database $triggergenDbName
 	}
 

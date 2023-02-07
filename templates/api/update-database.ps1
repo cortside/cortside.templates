@@ -1,13 +1,14 @@
 Param
 (
 	[Parameter(Mandatory = $false)][string]$server = "",
-	[Parameter(Mandatory=$false)][string]$database = "ShoppingCart",
+	[Parameter(Mandatory = $false)][string]$database = "ShoppingCart",
 	[Parameter(Mandatory = $false)][string]$username = "",
 	[Parameter(Mandatory = $false)][string]$password = "",
 	[Parameter(Mandatory = $false)][string]$ConnectionString = "",
 	[Parameter(Mandatory = $false)][switch]$UseIntegratedSecurity,
 	[Parameter(Mandatory = $false)][switch]$CreateDatabase,
-	[Parameter(Mandatory = $false)][switch]$RebuildDatabase
+	[Parameter(Mandatory = $false)][switch]$RebuildDatabase,
+	[Parameter(Mandatory = $false)][switch]$TestData
 )
 
 if ((Test-Path 'env:MSSQL_SERVER') -and $server -eq "") {
@@ -31,7 +32,8 @@ $ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';
 try {
 	# ErrorAction must be Stop in order to trigger catch
 	Import-Module SqlServer -ErrorAction Stop
-} catch {
+}
+catch {
 	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 	Install-PackageProvider -Name PowershellGet -Force
 	Install-Module -Name SqlServer -AllowClobber -Force
@@ -48,7 +50,8 @@ if ($ConnectionString) {
 	if (!($UseIntegratedSecurity.IsPresent)) {
 		$conn.TryGetValue('User ID', [ref]$username)
 		$conn.TryGetValue('Password', [ref]$password)
-	} else {
+	}
+ else {
 		Write-Output "using integrated security"
 	}
 }
@@ -57,7 +60,8 @@ if ($RebuildDatabase.IsPresent) {
 	Write-Output "Rebuilding database..."
 	if ($username -eq "") {
 		invoke-sqlcmd -Server "$server" -Query "IF EXISTS(SELECT * FROM sys.databases WHERE name = '$database') BEGIN alter database [$database] set single_user with rollback immediate; DROP database [$database] END"
-	} else {
+	}
+ else {
 		$secpasswd = ConvertTo-SecureString $password -AsPlainText -Force
 		$creds = New-Object System.Management.Automation.PSCredential ($username, $secpasswd)
 		invoke-sqlcmd -Credential $creds -Server $server -Query "IF EXISTS(SELECT * FROM sys.databases WHERE name = '$database') BEGIN alter database [$database] set single_user with rollback immediate; DROP database [$database] END"
@@ -69,7 +73,8 @@ if ($CreateDatabase.IsPresent -OR $RebuildDatabase.IsPresent) {
 	Write-Output "Creating database..."
 	if ($username -eq "") {
 		invoke-sqlcmd -Server "$server" -Query "IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = '$database') BEGIN CREATE database [$database] END"
-	} else {
+	}
+ else {
 		$secpasswd = ConvertTo-SecureString $password -AsPlainText -Force
 		$creds = New-Object System.Management.Automation.PSCredential ($username, $secpasswd)
 		invoke-sqlcmd -Credential $creds -Server $server -Query "IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = '$database') BEGIN CREATE database [$database] END"
@@ -125,6 +130,11 @@ if (Test-Path -path ".\src\sql\release\*.sql") {
 		$scripts += $_.FullName
 	}
 }
+if ($TestData.IsPresent -and (Test-Path -path ".\src\sql\testdata\*.sql")) {
+	gci -Recurse @(".\src\sql\testdata\*.sql") | % {
+		$scripts += $_.FullName
+	}
+}
 
 echo "Server: $Server"
 echo "Database: $database"
@@ -136,7 +146,8 @@ foreach ($script in $scripts) {
 	
 	if ($username -eq "") {
 		invoke-sqlcmd -Server "$server" -Database $database -inputFile "$script" | Out-File -FilePath "$log"
-	} else {
+	}
+ else {
 		$secpasswd = ConvertTo-SecureString $password -AsPlainText -Force
 		$creds = New-Object System.Management.Automation.PSCredential ($username, $secpasswd)
 		
