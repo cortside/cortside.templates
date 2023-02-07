@@ -1,7 +1,7 @@
 {
   "database": {
     "triggers": {
-      "excludeTables": ["test"]
+      "excludeTables": []
     }
   }
 }

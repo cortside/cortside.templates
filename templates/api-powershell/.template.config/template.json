@@ -47,7 +47,7 @@
     {
       "modifiers": [
         {
-          "exclude": ["src/.vs/**", ".template_config/**", "dbconfig.json"]
+          "exclude": ["src/.vs/**", ".template_config/**", "repository.json"]
         }
       ]
     }

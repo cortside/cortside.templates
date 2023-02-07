@@ -8,6 +8,8 @@ Param()
 
 $ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';
 
+. .\repository.ps1
+
 # this script is not safe to run on any machine other than a local dev machine, because of db deletion
 $server = "(LocalDB)\MSSQLLocalDB"
 $username = ""
@@ -91,11 +93,6 @@ if ($repoConfig.triggers.excludeTables.length -gt 0) {
 	$tables = "'$($repoConfig.triggers.excludeTables -join "','")'"
 	$projectExcludeTables = " AND t.TABLE_NAME NOT IN ($tables)"
 }
-
-$repo = "Acme.ShoppingCart"
-$project = "src/$repo.Data"
-$startup = "src/$repo.WebApi"
-$context = "DatabaseContext"
 
 $schemafile = "triggerschema.sql"
 
