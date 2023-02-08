@@ -86,8 +86,6 @@ Write-Host "creating $triggergenDbName and applying all migrations"
 
 invoke-sqlcmd -ServerInstance "$server" -Query "IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = '$triggergenDbName') BEGIN CREATE database [$triggergenDbName] END"
 
-$repoConfig = if (Test-Path repository.json) { get-content repository.json | ConvertFrom-Json }
-
 $projectExcludeTables = ""
 if ($repoConfig.database.triggers.excludeTables.length -gt 0) { 
 	$tables = "'$($repoConfig.database.triggers.excludeTables -join "','")'"
