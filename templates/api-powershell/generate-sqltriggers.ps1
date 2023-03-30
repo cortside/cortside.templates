@@ -42,8 +42,7 @@ if ($PSScriptRoot.Contains(' ')) {
 
 try {
 	Import-Module SqlServer -ErrorAction Stop
-}
-catch {
+} catch {
 	Write-Output "Installing SqlServer module for powershell"
 	Install-PackageProvider -Name NuGet -Force
 	Install-Module -Name SqlServer -AllowClobber -Force
@@ -54,13 +53,11 @@ try {
 	if ($username -eq "") {
 		Write-Output "Verifying SqlServer accessible at $server"
 		invoke-sqlcmd -ServerInstance $server -Query "select 'invoke-sqlcmd successful' AS SqlServerStatus" -QueryTimeout 5 -ConnectionTimeout 5 -ErrorAction Stop
-	}
- else {
+	} else {
 		Write-Output "Verifying SqlServer accessible at $server with user $username"
 		invoke-sqlcmd -ServerInstance $server -username $username -password $password -Query "select 'invoke-sqlcmd successful' AS SqlServerStatus" -QueryTimeout 5 -ConnectionTimeout 5 -ErrorAction Stop
 	}
-}
-catch {
+} catch {
 	throw "Problem connecting to SqlServer at $server. Please confirm up and running and try again."
 }
 
@@ -77,8 +74,7 @@ End
 Write-Host "deleting $triggergenDbName on $server, if it exists"
 if ($username -eq "") {
 	invoke-sqlcmd -ServerInstance $server -Query $deleteLocalDbQuery -ErrorAction Stop
-}
-else {
+} else {
 	invoke-sqlcmd -ServerInstance $server -username $username -password $password -Query $deleteLocalDbQuery -ErrorAction Stop
 }
 
@@ -193,8 +189,7 @@ $projectExcludeTables
 
 if ($username -eq "") {
 	$tables = Invoke-Sqlcmd -Query $sql -ServerInstance $server -Database $triggergenDbName
-}
-else {
+} else {
 	$tables = Invoke-Sqlcmd -Query $sql -ServerInstance $server -username $username -password $password -Database $triggergenDbName
 }
 
@@ -204,8 +199,7 @@ foreach ($table in $tables) {
 
 	if ($table.LastModifiedUserColumn -ne "") {
 		$lastmodifiedusercolumn = "SELECT TOP 1 @UserName=[$($table.LastModifiedUserColumn)] FROM inserted;"		
-	}
- else {
+	}  else {
 		$lastmodifiedusercolumn = "set @username = current_user"
 	}
 
@@ -219,8 +213,7 @@ ORDER BY ORDINAL_POSITION
 
 	if ($username -eq "") {
 		$columns = Invoke-Sqlcmd -Query $sql -ServerInstance $server -Database $triggergenDbName
-	}
- else {
+	} else {
 		$columns = Invoke-Sqlcmd -Query $sql -ServerInstance $server -username $username -password $password -Database $triggergenDbName
 	}
 

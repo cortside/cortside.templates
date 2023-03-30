@@ -32,8 +32,7 @@ $ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';
 try {
 	# ErrorAction must be Stop in order to trigger catch
 	Import-Module SqlServer -ErrorAction Stop
-}
-catch {
+} catch {
 	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 	Install-PackageProvider -Name PowershellGet -Force
 	Install-Module -Name SqlServer -AllowClobber -Force
@@ -50,8 +49,7 @@ if ($ConnectionString) {
 	if (!($UseIntegratedSecurity.IsPresent)) {
 		$conn.TryGetValue('User ID', [ref]$username)
 		$conn.TryGetValue('Password', [ref]$password)
-	}
- else {
+	} else {
 		Write-Output "using integrated security"
 	}
 }
@@ -60,8 +58,7 @@ if ($RebuildDatabase.IsPresent) {
 	Write-Output "Rebuilding database..."
 	if ($username -eq "") {
 		invoke-sqlcmd -Server "$server" -Query "IF EXISTS(SELECT * FROM sys.databases WHERE name = '$database') BEGIN alter database [$database] set single_user with rollback immediate; DROP database [$database] END"
-	}
- else {
+	} else {
 		$secpasswd = ConvertTo-SecureString $password -AsPlainText -Force
 		$creds = New-Object System.Management.Automation.PSCredential ($username, $secpasswd)
 		invoke-sqlcmd -Credential $creds -Server $server -Query "IF EXISTS(SELECT * FROM sys.databases WHERE name = '$database') BEGIN alter database [$database] set single_user with rollback immediate; DROP database [$database] END"
@@ -73,8 +70,7 @@ if ($CreateDatabase.IsPresent -OR $RebuildDatabase.IsPresent) {
 	Write-Output "Creating database..."
 	if ($username -eq "") {
 		invoke-sqlcmd -Server "$server" -Query "IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = '$database') BEGIN CREATE database [$database] END"
-	}
- else {
+	} else {
 		$secpasswd = ConvertTo-SecureString $password -AsPlainText -Force
 		$creds = New-Object System.Management.Automation.PSCredential ($username, $secpasswd)
 		invoke-sqlcmd -Credential $creds -Server $server -Query "IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = '$database') BEGIN CREATE database [$database] END"
@@ -146,8 +142,7 @@ foreach ($script in $scripts) {
 	
 	if ($username -eq "") {
 		invoke-sqlcmd -Server "$server" -Database $database -inputFile "$script" | Out-File -FilePath "$log"
-	}
- else {
+	} else {
 		$secpasswd = ConvertTo-SecureString $password -AsPlainText -Force
 		$creds = New-Object System.Management.Automation.PSCredential ($username, $secpasswd)
 		

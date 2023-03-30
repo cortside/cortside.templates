@@ -46,13 +46,11 @@ foreach ($migration in $migrations) {
 				$text = Get-Content src/sql/table/$migration.migration.sql -Raw 
 				$text = $text.replace("GO`r`n", "")
 				"$begin$text$end" | Out-File src/sql/table/$migration.migration.sql -Encoding UTF8
-			}
-			else {
+			} else {
 				echo "error generating migration"
 			}
-		}
-		else {
-	  echo "skipping, file already exists"
+		} else {
+			echo "skipping, file already exists"
 		}
 	
 		## set last for next loop
