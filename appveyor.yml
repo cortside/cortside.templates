@@ -1,17 +1,17 @@
-version: '1.0.{build}'
+version: "1.0.{build}"
 image: Visual Studio 2022
 
 environment:
   NugetApiKey:
     secure: 6VwMB2mqQSx7mbr3n1eimI13FgAzGrWqAOEi/JO2cK2d3F56Ki1e5Suc6nsSpE2U
-    
+
 dotnet_csproj:
   patch: true
   file: '**\*.csproj'
-  version: '{version}'
-  assembly_version: '{version}'
-  file_version: '{version}'
-  
+  version: "{version}"
+  assembly_version: "{version}"
+  file_version: "{version}"
+
 pull_requests:
   do_not_increment_build_number: true
 
@@ -19,6 +19,7 @@ branches:
   only:
   - master
   - develop
+#  - /feature\/.*/
 
 nuget:
   disable_publish_on_pr: true
@@ -26,8 +27,10 @@ nuget:
 test: off
 
 build_script:
-- ps: ./build.ps1
-  
+  - ps: ./build.ps1
+
+artifacts:
+  - path: artifacts\**\*.*
+
 deploy_script:
   - ps: dotnet nuget push .\artifacts\*.nupkg -k $env:NugetApiKey --source https://api.nuget.org/v3/index.json
- 
