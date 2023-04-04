@@ -1,14 +1,31 @@
 Param
 (
-	[Parameter(Mandatory = $false)][string]$server = "localhost",
-	[Parameter(Mandatory=$false)][string]$database = "ShoppingCart",
+	[Parameter(Mandatory = $false)][string]$server = "",
+	[Parameter(Mandatory = $false)][string]$database = "ShoppingCart",
 	[Parameter(Mandatory = $false)][string]$username = "",
 	[Parameter(Mandatory = $false)][string]$password = "",
 	[Parameter(Mandatory = $false)][string]$ConnectionString = "",
 	[Parameter(Mandatory = $false)][switch]$UseIntegratedSecurity,
 	[Parameter(Mandatory = $false)][switch]$CreateDatabase,
-	[Parameter(Mandatory = $false)][switch]$RebuildDatabase
+	[Parameter(Mandatory = $false)][switch]$RebuildDatabase,
+	[Parameter(Mandatory = $false)][switch]$TestData
 )
+
+if ((Test-Path 'env:MSSQL_SERVER') -and $server -eq "") {
+	$server = $env:MSSQL_SERVER
+
+	if ((Test-Path 'env:MSSQL_USER')) {
+		$username = $env:MSSQL_USER
+	}
+	if ((Test-Path 'env:MSSQL_PASSWORD')) {
+		$password = $env:MSSQL_PASSWORD
+	}
+}
+if ($server -eq "") {
+	$server = "(LocalDB)\MSSQLLocalDB"
+}
+
+echo "Server: $server"
 
 $ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';
 
@@ -17,7 +34,7 @@ try {
 	Import-Module SqlServer -ErrorAction Stop
 } catch {
 	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-	Install-PackageProvider -Name NuGet -Force
+	Install-PackageProvider -Name PowershellGet -Force
 	Install-Module -Name SqlServer -AllowClobber -Force
 	Import-Module SqlServer
 }
@@ -106,6 +123,11 @@ if (Test-Path -path ".\src\sql\data\*.sql") {
 }
 if (Test-Path -path ".\src\sql\release\*.sql") {
 	gci -Recurse @(".\src\sql\release\*.sql") | % {
+		$scripts += $_.FullName
+	}
+}
+if ($TestData.IsPresent -and (Test-Path -path ".\src\sql\testdata\*.sql")) {
+	gci -Recurse @(".\src\sql\testdata\*.sql") | % {
 		$scripts += $_.FullName
 	}
 }

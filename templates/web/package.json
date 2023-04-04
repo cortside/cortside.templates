@@ -1,0 +1,48 @@
+{
+  "name": "shoppingcart-web",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test"
+  },
+  "private": true,
+  "dependencies": {
+    "@angular/animations": "^14.2.2",
+    "@angular/cdk": "^14.2.2",
+    "@angular/common": "^14.2.2",
+    "@angular/compiler": "^14.2.2",
+    "@angular/core": "^14.2.2",
+    "@angular/forms": "^14.2.2",
+    "@angular/material": "^14.2.2",
+    "@angular/platform-browser": "^14.2.2",
+    "@angular/platform-browser-dynamic": "^14.2.2",
+    "@angular/router": "^14.2.2",
+    "@tailwindcss/forms": "^0.5.2",
+    "muzieh-ngcomponents": "0.0.7-alpha.884",
+    "oidc-client": "^1.11.5",
+    "rxjs": "~7.5.0",
+    "subsink": "^1.0.2",
+    "tslib": "^2.3.0",
+    "zone.js": "~0.11.4"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^14.2.3",
+    "@angular/cli": "~14.2.3",
+    "@angular/compiler-cli": "^14.2.2",
+    "@types/jasmine": "~4.0.0",
+    "autoprefixer": "^10.4.7",
+    "jasmine-core": "~4.1.0",
+    "karma": "~6.3.0",
+    "karma-chrome-launcher": "~3.1.0",
+    "karma-coverage": "~2.2.0",
+    "karma-jasmine": "~5.0.0",
+    "karma-jasmine-html-reporter": "~1.7.0",
+    "ng-packagr": "^14.0.0",
+    "postcss": "^8.4.14",
+    "tailwindcss": "^3.1.4",
+    "typescript": "~4.7.2"
+  }
+}
