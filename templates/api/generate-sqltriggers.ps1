@@ -4,17 +4,26 @@
     with all migrations applied
 #>
 [cmdletBinding()]
-Param()
+Param
+(
+	[Parameter(Mandatory = $false)][string]$server = "",
+	[Parameter(Mandatory = $false)][string]$username = "",
+	[Parameter(Mandatory = $false)][string]$password = ""
+)
 
 $ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';
 
-. .\repository.ps1
+# common repository functions
+Import-Module .\Repository.psm1
+$config = Get-RepositoryConfiguration
 
-# this script is not safe to run on any machine other than a local dev machine, because of db deletion
-$server = "(LocalDB)\MSSQLLocalDB"
-$username = ""
-$password = ""
-if ((Test-Path 'env:MSSQL_SERVER') -and $server -eq "(LocalDB)\MSSQLLocalDB") {
+#set variables
+$repo = $config.repository.name
+$project = $config.database.dbContextProject
+$startup = $config.database.startupProject
+$context = $config.database.dbContext
+
+if ((Test-Path 'env:MSSQL_SERVER') -and $server -eq "") {
 	$server = $env:MSSQL_SERVER
 
 	if ((Test-Path 'env:MSSQL_USER')) {
@@ -24,7 +33,12 @@ if ((Test-Path 'env:MSSQL_SERVER') -and $server -eq "(LocalDB)\MSSQLLocalDB") {
 		$password = $env:MSSQL_PASSWORD
 	}
 }
+if ($server -eq "") {
+	$server = "(LocalDB)\MSSQLLocalDB"
+}
+
 echo "Server: $server"
+echo "User: $username"
 
 $triggergenDbName = "GenerateSqlTriggers"
 
@@ -44,8 +58,8 @@ try {
 	Import-Module SqlServer -ErrorAction Stop
 } catch {
 	Write-Output "Installing SqlServer module for powershell"
-	Install-PackageProvider -Name NuGet -Force
-	Install-Module -Name SqlServer -AllowClobber -Force
+	Install-PackageProvider -Name NuGet -Force -Scope CurrentUser
+	Install-Module -Name SqlServer -AllowClobber -Force -Scope CurrentUser
 	Import-Module SqlServer
 }
 
@@ -64,37 +78,59 @@ try {
 $deleteLocalDbQuery = @"
 use [master]
 go
-IF  EXISTS (SELECT name FROM sys.databases WHERE name = N'$triggergenDbName')
-Begin
-alter database [$triggergenDbName] set single_user with rollback immediate;
-DROP DATABASE [$triggergenDbName];
-End
+IF EXISTS (SELECT name FROM sys.databases WHERE name = N'$triggergenDbName')
+  Begin
+    alter database [$triggergenDbName] set single_user with rollback immediate;
+    DROP DATABASE [$triggergenDbName];
+  End
+GO
+IF EXISTS (SELECT name FROM sys.databases WHERE name = N'$triggergenDbName')
+  Begin
+    RAISERROR (15600, -1, -1, '$triggergenDbName was not dropped');
+  End
+GO
+CREATE DATABASE [$triggergenDbName];
 "@
 
-Write-Host "deleting $triggergenDbName on $server, if it exists"
-if ($username -eq "") {
-	invoke-sqlcmd -ServerInstance $server -Query $deleteLocalDbQuery -ErrorAction Stop
-} else {
-	invoke-sqlcmd -ServerInstance $server -username $username -password $password -Query $deleteLocalDbQuery -ErrorAction Stop
-}
-
-Write-Host "creating $triggergenDbName and applying all migrations"
-
-invoke-sqlcmd -ServerInstance "$server" -Query "IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = '$triggergenDbName') BEGIN CREATE database [$triggergenDbName] END"
-
-$projectExcludeTables = ""
-if ($repoConfig.database.triggers.excludeTables.length -gt 0) { 
-	$tables = "'$($repoConfig.database.triggers.excludeTables -join "','")'"
-	$projectExcludeTables = " AND t.TABLE_NAME NOT IN ($tables)"
+try {   
+	if ($username -eq "") {
+		Write-Output "Executing drop and create of $triggergenDbName on $server"
+		invoke-sqlcmd -ServerInstance $server -Query $deleteLocalDbQuery -ErrorAction Stop
+	} else {
+		Write-Output "Executing drop and create of $triggergenDbName on $server with user $username"
+		invoke-sqlcmd -ServerInstance $server -username $username -password $password -Query $deleteLocalDbQuery -ErrorAction Stop
+	}
+} catch {
+	Write-Output($error)
+	throw "Problem connecting to SqlServer at $server. Please confirm up and running and try again."
 }
 
 $schemafile = "triggerschema.sql"
-
 dotnet ef dbcontext script -p $project -s $startup -c $context --no-build -o $schemafile
 
-invoke-sqlcmd -serverInstance $server  -Database $triggergenDbName -inputFile "$schemafile"
+if (!(Test-Path $schemafile)) {
+	throw "no schema file"
+}
 
-rm $schemafile
+try {   
+	if ($username -eq "") {
+		Write-Output "Executing schema file $schemafile on $server"
+		invoke-sqlcmd -serverInstance $server -Database $triggergenDbName -inputFile "$schemafile" -ErrorAction Stop
+	} else {
+		Write-Output "Executing schema file $schemafile on $server with user $username"
+		invoke-sqlcmd -serverInstance $server -username $username -password $password -Database $triggergenDbName -inputFile "$schemafile" -ErrorAction Stop
+	}
+	rm $schemafile
+} catch {
+	Write-Output($error)
+	throw "Problem executing schema file"
+}
+
+$projectExcludeTables = ""
+if ($config.database.triggers.excludeTables.length -gt 0) { 
+	$tables = "'$($config.database.triggers.excludeTables -join "','")'"
+	$projectExcludeTables = " AND t.TABLE_NAME NOT IN ($tables)"
+}
 
 $triggerTemplate = @"
 DROP TRIGGER IF EXISTS {{triggerName}}
@@ -128,6 +164,7 @@ CREATE TRIGGER {{triggerName}}
                 WHEN EXISTS(SELECT 1 FROM INSERTED) THEN 'UPDATE'
                 ELSE 'DELETE'
             END
+        SELECT @ROWS_COUNT=count(*) from deleted
     END
 
 	-- determine username
@@ -183,7 +220,7 @@ left join (
 	JOIN INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE ccu ON tc.CONSTRAINT_NAME = ccu.Constraint_name
 	WHERE tc.CONSTRAINT_TYPE = 'Primary Key' 
 ) pk on pk.TABLE_NAME=t.TABLE_NAME and pk.TABLE_SCHEMA=t.TABLE_SCHEMA
-WHERE t.TABLE_NAME NOT IN ('__EFMigrationsHistory', 'Audit', 'AuditLog', 'AuditLogs', 'AuditLogTransaction', 'sysdiagrams', 'DiagnosticLog', 'Outbox')
+WHERE t.TABLE_TYPE='BASE TABLE'
 $projectExcludeTables
 "@
 
@@ -238,7 +275,7 @@ ORDER BY ORDINAL_POSITION
 	$content | Out-File -encoding UTF8 $filename
 }
 
-git status
+git status *.sql
 
 Write-Output @("
 ##########

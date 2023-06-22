@@ -1,4 +1,12 @@
-. .\repository.ps1
+# common repository functions
+Import-Module .\Repository.psm1
+$config = Get-RepositoryConfiguration
+
+#set variables
+$repo = $config.repository.name
+$project = $config.database.dbContextProject
+$startup = $config.database.startupProject
+$context = $config.database.dbContext
 
 echo "Generating transactional SQL migrations for $project..."
 
@@ -24,6 +32,9 @@ END CATCH
 PRINT 'After END CATCH'
 GO
 "@
+
+## make sure dotnet ef is installed and up to date
+dotnet tool update --global dotnet-ef
 
 ## get list of migrations
 $migrations = (dotnet ef migrations list --no-build --project "$project" --startup-project "$startup" --context "$context")
