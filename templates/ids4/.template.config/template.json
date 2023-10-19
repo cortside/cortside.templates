@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Cortside",
+  "classifications": [
+    "ASP.NET Core",
+    "Core",
+    "MVC",
+    "Template",
+    "Web",
+    "Cortside"
+  ],
+  "identity": "AspNetCore.Template.Ids4",
+  "name": "ASP.NET Core Ids4 Template",
+  "shortName": "cortside-ids4",
+  "sourceName": "Acme.IdentityServer4",
+  "preferNameDirectory": true,
+  "symbols": {
+    "company": {
+      "type": "parameter",
+      "replaces": "Acme",
+      "defaultValue": "Acme",
+      "FileRename": "Acme",
+      "isRequired": true
+    },
+  },
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "exclude": ["src/.vs/**", ".template_config/**", "repository.json"]
+        }
+      ]
+    }
+  ]
+}
