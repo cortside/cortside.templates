@@ -1,27 +1,18 @@
 using System;
 using System.Text.RegularExpressions;
 using Acme.ShoppingCart.CatalogApi.Models.Responses;
+using Cortside.MockServer;
+using Cortside.MockServer.Builder;
 using Cortside.RestApiClient.Authenticators.OpenIDConnect;
 using Newtonsoft.Json;
 using WireMock.RequestBuilders;
 using WireMock.ResponseBuilders;
-using WireMock.Server;
 
 namespace Acme.ShoppingCart.CatalogApi.Tests.Mock {
-    public class UserWireMock {
-        public WireMockServer server { get; }
-
-        public UserWireMock() {
-            if (server == null) {
-                server = WireMockServer.Start();
-            }
-            Configure();
-        }
-
-        public void Configure() {
-            var getUserUrl =
-            new Regex(@"^\/api/v1/items\/([0-9A-Fa-f]{8}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{12})$");
-            server
+    public class CatalogMock : IMockHttpMock {
+        public void Configure(MockHttpServer server) {
+            var getUserUrl = new Regex(@"^\/api/v1/items\/([0-9A-Fa-f]{8}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{4}[-][0-9A-Fa-f]{12})$");
+            server.WireMockServer
                .Given(
                    Request.Create().WithPath(p => getUserUrl.IsMatch(p)).UsingGet()
                )
@@ -38,7 +29,7 @@ namespace Acme.ShoppingCart.CatalogApi.Tests.Mock {
                            }
                        ))
                );
-            server
+            server.WireMockServer
                 .Given(
                     Request.Create().WithPath("/connect/token").UsingPost()
                 )

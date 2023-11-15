@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Acme.ShoppingCart.CatalogApi.Models.Responses;
 using Acme.ShoppingCart.CatalogApi.Tests.Mock;
+using Cortside.MockServer;
 using Cortside.RestApiClient;
 using Cortside.RestApiClient.Authenticators.OpenIDConnect;
 using FluentAssertions;
@@ -16,13 +17,16 @@ using RichardSzalay.MockHttp;
 using Xunit;
 
 namespace Acme.ShoppingCart.CatalogApi.Tests {
-    public class UserClientTest {
-        private readonly ICatalogClient userClient;
+    public class CatalogClientTest {
+        private readonly ICatalogClient catalogClient;
         private readonly CatalogClientConfiguration config;
 
-        public UserClientTest() {
-            UserWireMock userMock = new UserWireMock();
-            var wiremockurl = userMock.server.Urls[0];
+        public CatalogClientTest() {
+            var server = MockHttpServer.CreateBuilder(Guid.NewGuid().ToString())
+                .AddMock<CatalogMock>()
+                .Build();
+
+            var wiremockurl = server.Url;
             var request = new TokenRequest {
                 AuthorityUrl = wiremockurl,
                 ClientId = "clientid",
@@ -32,7 +36,7 @@ namespace Acme.ShoppingCart.CatalogApi.Tests {
                 SlidingExpiration = 30
             };
             config = new CatalogClientConfiguration { ServiceUrl = wiremockurl, Authentication = request };
-            userClient = new CatalogClient(config, new Logger<CatalogClient>(new NullLoggerFactory()), new HttpContextAccessor());
+            catalogClient = new CatalogClient(config, new Logger<CatalogClient>(new NullLoggerFactory()), new HttpContextAccessor());
         }
 
         [Fact]
@@ -41,7 +45,7 @@ namespace Acme.ShoppingCart.CatalogApi.Tests {
             string sku = Guid.NewGuid().ToString();
 
             //act
-            CatalogItem item = await userClient.GetItemAsync(sku).ConfigureAwait(false);
+            CatalogItem item = await catalogClient.GetItemAsync(sku).ConfigureAwait(false);
 
             //assert
             item.Should().NotBeNull();
@@ -50,13 +54,13 @@ namespace Acme.ShoppingCart.CatalogApi.Tests {
         [Fact]
         public async Task MockHttpMessageHandler_ShouldGetUserAsync() {
             // arrange
-            var user = new CatalogItem() {
+            var item = new CatalogItem() {
                 ItemId = Guid.NewGuid(),
                 Name = "Foo",
                 Sku = Guid.NewGuid().ToString(),
                 UnitPrice = 12.34M
             };
-            var json = JsonConvert.SerializeObject(user);
+            var json = JsonConvert.SerializeObject(item);
 
             const string url = "http://localhost:1234";
             var mockHttp = new MockHttpMessageHandler();
@@ -73,10 +77,10 @@ namespace Acme.ShoppingCart.CatalogApi.Tests {
             var client = new CatalogClient(config, new NullLogger<CatalogClient>(), new HttpContextAccessor(), options);
 
             //act
-            CatalogItem response = await client.GetItemAsync(user.Sku).ConfigureAwait(false);
+            CatalogItem response = await client.GetItemAsync(item.Sku).ConfigureAwait(false);
 
             //assert
-            response.Should().BeEquivalentTo(user);
+            response.Should().BeEquivalentTo(item);
         }
     }
 }
