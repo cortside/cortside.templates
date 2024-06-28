@@ -44,6 +44,15 @@
                 "toLower": true
             },
             "replaces": "shoppingcart"
+        },
+        "resourcetolower": {
+            "type": "generated",
+            "generator": "casing",
+            "parameters": {
+                "source": "resource",
+                "toLower": true
+            },
+            "replaces": "customer"
         }
     },
     "tags": {
@@ -57,7 +66,8 @@
                     "exclude": [
                         "src/.vs/**",
                         ".template_config/**",
-                        "repository.json"
+                        "repository.json",
+                        ".editorconfig"
                     ]
                 }
             ]
