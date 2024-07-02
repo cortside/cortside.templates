@@ -9,9 +9,9 @@
         "Web",
         "Cortside"
     ],
-    "identity": "AspNetCore.Template.deploy",
-    "name": "ASP.NET Core Template deploy",
-    "shortName": "cortside-api-deploy",
+    "identity": "AspNetCore.Template.resource",
+    "name": "ASP.NET Core Template resource",
+    "shortName": "cortside-api-resource",
     "sourceName": "Acme.ShoppingCart",
     "preferNameDirectory": true,
     "symbols": {
@@ -29,6 +29,13 @@
             "FileRename": "ShoppingCart",
             "isRequired": true
         },
+        "resource": {
+            "type": "parameter",
+            "replaces": "Customer",
+            "defaultValue": "Customer",
+            "FileRename": "Customer",
+            "isRequired": true
+        },
         "service": {
             "type": "generated",
             "generator": "casing",
@@ -37,6 +44,15 @@
                 "toLower": true
             },
             "replaces": "shoppingcart"
+        },
+        "resourcetolower": {
+            "type": "generated",
+            "generator": "casing",
+            "parameters": {
+                "source": "resource",
+                "toLower": true
+            },
+            "replaces": "customer"
         }
     },
     "tags": {
@@ -47,7 +63,12 @@
         {
             "modifiers": [
                 {
-                    "exclude": ["src/.vs/**", ".template_config/**"]
+                    "exclude": [
+                        "src/.vs/**",
+                        ".template_config/**",
+                        "repository.json",
+                        ".editorconfig"
+                    ]
                 }
             ]
         }
