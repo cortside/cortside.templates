@@ -1,0 +1,76 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Cortside",
+    "classifications": [
+        "ASP.NET Core",
+        "Core",
+        "MVC",
+        "Template",
+        "Web",
+        "Cortside"
+    ],
+    "identity": "AspNetCore.Template.resource",
+    "name": "ASP.NET Core Template resource",
+    "shortName": "cortside-api-resource",
+    "sourceName": "Acme.ShoppingCart",
+    "preferNameDirectory": true,
+    "symbols": {
+        "company": {
+            "type": "parameter",
+            "replaces": "Acme",
+            "defaultValue": "Acme",
+            "FileRename": "Acme",
+            "isRequired": true
+        },
+        "product": {
+            "type": "parameter",
+            "replaces": "ShoppingCart",
+            "defaultValue": "ShoppingCart",
+            "FileRename": "ShoppingCart",
+            "isRequired": true
+        },
+        "resource": {
+            "type": "parameter",
+            "replaces": "Customer",
+            "defaultValue": "Customer",
+            "FileRename": "Customer",
+            "isRequired": true
+        },
+        "service": {
+            "type": "generated",
+            "generator": "casing",
+            "parameters": {
+                "source": "product",
+                "toLower": true
+            },
+            "replaces": "shoppingcart"
+        },
+        "resourcetolower": {
+            "type": "generated",
+            "generator": "casing",
+            "parameters": {
+                "source": "resource",
+                "toLower": true
+            },
+            "replaces": "customer"
+        }
+    },
+    "tags": {
+        "language": "C#",
+        "type": "project"
+    },
+    "sources": [
+        {
+            "modifiers": [
+                {
+                    "exclude": [
+                        "src/.vs/**",
+                        ".template_config/**",
+                        "repository.json",
+                        ".editorconfig"
+                    ]
+                }
+            ]
+        }
+    ]
+}
