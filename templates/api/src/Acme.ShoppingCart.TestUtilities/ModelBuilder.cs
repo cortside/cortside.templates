@@ -1,10 +1,10 @@
-﻿using System;
+using System;
 using Acme.ShoppingCart.CatalogApi.Models.Responses;
 using Acme.ShoppingCart.WebApi.Models.Requests;
 using Cortside.Common.Testing;
 
 namespace Acme.ShoppingCart.TestUtilities {
-    public class ModelBuilder {
+    public static class ModelBuilder {
         public static CatalogItem GetCatalogItem(Guid? itemId = null) {
             return new CatalogItem {
                 ImageUrl = $"https://{RandomValues.CreateRandomString}.com/{RandomValues.CreateRandomNumberString}.jpg",
@@ -16,7 +16,6 @@ namespace Acme.ShoppingCart.TestUtilities {
         }
 
         public static CreateOrderModel GetCreateOrderModel() {
-
             return new CreateOrderModel() {
                 Customer = new UpdateOrderCustomerModel() {
                     FirstName = RandomValues.FirstName,

@@ -8,8 +8,8 @@ using Acme.ShoppingCart.WebApi.Models.Requests;
 using Acme.ShoppingCart.WebApi.Models.Responses;
 using Asp.Versioning;
 using Cortside.AspNetCore;
+using Cortside.AspNetCore.Common.Models;
 using Cortside.AspNetCore.Common.Paging;
-using Cortside.AspNetCore.Filters.Models;
 using Cortside.Common.Cryptography;
 using Cortside.Common.Messages.MessageExceptions;
 using Microsoft.AspNetCore.Authorization;
@@ -102,8 +102,10 @@ namespace Acme.ShoppingCart.WebApi.Controllers {
         [Authorize(Constants.Authorization.Permissions.GetCustomer)]
         [ProducesResponseType(typeof(CustomerModel), StatusCodes.Status200OK)]
         public async Task<IActionResult> GetCustomerAsync(Guid id) {
-            var dto = await facade.GetCustomerAsync(id).ConfigureAwait(false);
-            return Ok(customerMapper.Map(dto));
+            using (LogContext.PushProperty("CustomerResourceId", id)) {
+                var dto = await facade.GetCustomerAsync(id).ConfigureAwait(false);
+                return Ok(customerMapper.Map(dto));
+            }
         }
 
         /// <summary>

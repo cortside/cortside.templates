@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq.Dynamic.Core;
+using System.Linq;
 using Acme.ShoppingCart.Data;
 using Acme.ShoppingCart.WebApi.IntegrationTests.Mocks;
 using Cortside.AspNetCore.Testing;
@@ -19,6 +19,9 @@ using Newtonsoft.Json;
 namespace Acme.ShoppingCart.WebApi.IntegrationTests {
     public class IntegrationFixture : WebApiFixture<Startup> {
         public IntegrationFixture() {
+            // set the environment to Development so that development error pages are shown
+            Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development");
+
             Subjects = JsonConvert.DeserializeObject<Subjects>(File.ReadAllText("./Data/subjects.json"));
         }
 
@@ -44,7 +47,6 @@ namespace Acme.ShoppingCart.WebApi.IntegrationTests {
                     });
         }
 
-#pragma warning disable S125
         protected override void ConfigureServices(IServiceCollection services) {
             services.AddLogging(builder => {
                 builder.ClearProviders();

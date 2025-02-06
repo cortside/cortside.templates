@@ -17,12 +17,14 @@ using Cortside.AspNetCore.Filters;
 using Cortside.AspNetCore.Swagger;
 using Cortside.DomainEvent;
 using Cortside.DomainEvent.EntityFramework;
+using Cortside.DomainEvent.Health;
 using Cortside.Health;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 
 namespace Acme.ShoppingCart.WebApi {
@@ -78,6 +80,7 @@ namespace Acme.ShoppingCart.WebApi {
             services.AddHealth(o => {
                 o.UseConfiguration(Configuration);
                 o.AddCustomCheck("example", typeof(ExampleCheck));
+                o.AddCustomCheck("domainevent", typeof(DomainEventCheck));
             });
 
             // add domain event receiver with handlers
@@ -107,7 +110,7 @@ namespace Acme.ShoppingCart.WebApi {
             // add service for handling encryption of search parameters
             services.AddEncryptionService(Configuration["Encryption:Secret"]);
 
-            // setup and register boostrapper and it's installers
+            // setup and register bootstrapper and it's installers
             services.AddBootStrapper<DefaultApplicationBootStrapper>(Configuration, o => {
                 o.AddInstaller(new ModelMapperInstaller());
             });
@@ -126,6 +129,10 @@ namespace Acme.ShoppingCart.WebApi {
 
             app.UseApiDefaults(Configuration);
             app.UseSwagger("Acme.ShoppingCart Api", provider);
+
+            if (env.IsDevelopment()) {
+                app.UseDeveloperExceptionPage();
+            }
 
             // order of the following matters
             app.UseAuthentication();

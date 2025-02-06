@@ -1,6 +1,8 @@
 using System;
 using System.Threading.Tasks;
-using Acme.ShoppingCart.Dto;
+using Acme.ShoppingCart.Dto.Input;
+using Acme.ShoppingCart.Dto.Output;
+using Acme.ShoppingCart.Dto.Search;
 using Cortside.AspNetCore.Common.Paging;
 
 namespace Acme.ShoppingCart.Facade {
@@ -12,5 +14,6 @@ namespace Acme.ShoppingCart.Facade {
         Task<OrderDto> UpdateOrderAsync(Guid id, UpdateOrderDto dto);
         Task<OrderDto> AddOrderItemAsync(Guid id, OrderItemDto dto);
         Task<OrderDto> SendNotificationAsync(Guid id);
+        Task CancelOrderAsync(Guid id);
     }
 }

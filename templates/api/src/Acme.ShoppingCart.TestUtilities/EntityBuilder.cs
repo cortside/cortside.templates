@@ -1,9 +1,9 @@
-﻿using Acme.ShoppingCart.CatalogApi.Models.Responses;
+using Acme.ShoppingCart.CatalogApi.Models.Responses;
 using Acme.ShoppingCart.Domain.Entities;
 using Cortside.Common.Testing;
 
 namespace Acme.ShoppingCart.TestUtilities {
-    public class EntityBuilder {
+    public static class EntityBuilder {
         public static Customer GetCustomerEntity() {
             return new Customer(RandomValues.FirstName, RandomValues.LastName, ModelBuilder.GetEmail());
         }

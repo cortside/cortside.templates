@@ -1,6 +1,10 @@
 #pragma warning disable CS1591 // Missing XML comments
 
 using Acme.ShoppingCart.Dto;
+using Acme.ShoppingCart.Dto.Input;
+using Acme.ShoppingCart.Dto.Output;
+using Acme.ShoppingCart.Dto.Search;
+using Acme.ShoppingCart.WebApi.Models.Enumerations;
 using Acme.ShoppingCart.WebApi.Models.Requests;
 using Acme.ShoppingCart.WebApi.Models.Responses;
 
@@ -26,6 +30,7 @@ namespace Acme.ShoppingCart.WebApi.Mappers {
                 Address = addressMapper.Map(dto.Address),
                 Items = dto.Items.ConvertAll(x => Map(x)),
                 Customer = customerMapper.Map(dto.Customer),
+                Status = ((OrderStatus)(int)dto.Status),
                 CreatedDate = dto.CreatedDate,
                 LastModifiedDate = dto.LastModifiedDate,
                 CreatedSubject = subjectMapper.Map(dto.CreatedSubject),
@@ -82,7 +87,7 @@ namespace Acme.ShoppingCart.WebApi.Mappers {
                     Country = model.Address.Country,
                     ZipCode = model.Address.ZipCode
                 },
-                Items = model.Items?.ConvertAll(x => new UpdateOrderItemDto() { Sku = x.Sku, Quantity = x.Quantity })
+                Items = model.Items?.ConvertAll(x => new UpdateOrderItemDto() { Sku = x.Sku, Quantity = x.Quantity.Value })
             };
         }
 
@@ -100,7 +105,7 @@ namespace Acme.ShoppingCart.WebApi.Mappers {
                     Country = model.Address.Country,
                     ZipCode = model.Address.ZipCode
                 },
-                Items = model.Items?.ConvertAll(x => new UpdateOrderItemDto() { Sku = x.Sku, Quantity = x.Quantity })
+                Items = model.Items?.ConvertAll(x => new UpdateOrderItemDto() { Sku = x.Sku, Quantity = x.Quantity.Value })
             };
         }
 
@@ -117,7 +122,7 @@ namespace Acme.ShoppingCart.WebApi.Mappers {
                     Country = model.Address.Country,
                     ZipCode = model.Address.ZipCode
                 },
-                Items = model.Items?.ConvertAll(x => new UpdateOrderItemDto() { Sku = x.Sku, Quantity = x.Quantity })
+                Items = model.Items?.ConvertAll(x => new UpdateOrderItemDto() { Sku = x.Sku, Quantity = x.Quantity.Value })
             };
         }
 
@@ -128,7 +133,7 @@ namespace Acme.ShoppingCart.WebApi.Mappers {
 
             return new OrderItemDto() {
                 Sku = model.Sku,
-                Quantity = model.Quantity
+                Quantity = model.Quantity.Value
             };
         }
     }
