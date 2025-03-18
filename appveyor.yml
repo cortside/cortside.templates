@@ -3,7 +3,7 @@ image: Visual Studio 2022
 
 environment:
   NugetApiKey:
-    secure: wrXAwgDagNpfLJIY+q0SDdkvCm5gOrnVfzKhL1OS1VVGyO7+gh7GuisLSzFF5v5z
+    secure: D7B7/pzGIeteV3H4DrdBtyKCxLrgcBAL6XWtWrm/kJrshDwUZ5acauR9QWll7TWi
 
 dotnet_csproj:
   patch: true
