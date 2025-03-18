@@ -114,6 +114,7 @@ Function Invoke-Cleanup {
 	remove "TestBin"
 	remove "output"
 	remove "coveragereport"
+	remove ".sonarqube"
 }
 
 if ($force.IsPresent) {
@@ -122,6 +123,9 @@ if ($force.IsPresent) {
 
 	# cleanup all nuget resources
 	#dotnet nuget locals --clear all
+	
+	# remove the .vs folder
+	remove "src/.vs"
 }
 
 # remove all bin/obj folders

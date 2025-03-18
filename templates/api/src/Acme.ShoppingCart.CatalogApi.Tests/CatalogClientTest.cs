@@ -5,7 +5,6 @@ using Acme.ShoppingCart.CatalogApi.Tests.Mock;
 using Cortside.MockServer;
 using Cortside.RestApiClient;
 using Cortside.RestApiClient.Authenticators.OpenIDConnect;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
@@ -14,6 +13,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RichardSzalay.MockHttp;
+using Shouldly;
 using Xunit;
 
 namespace Acme.ShoppingCart.CatalogApi.Tests {
@@ -48,7 +48,7 @@ namespace Acme.ShoppingCart.CatalogApi.Tests {
             CatalogItem item = await catalogClient.GetItemAsync(sku);
 
             //assert
-            item.Should().NotBeNull();
+            item.ShouldNotBeNull();
         }
 
         [Fact]
@@ -80,7 +80,7 @@ namespace Acme.ShoppingCart.CatalogApi.Tests {
             CatalogItem response = await client.GetItemAsync(item.Sku);
 
             //assert
-            response.Should().BeEquivalentTo(item);
+            response.ShouldBeEquivalentTo(item);
         }
 
         public void Dispose() {

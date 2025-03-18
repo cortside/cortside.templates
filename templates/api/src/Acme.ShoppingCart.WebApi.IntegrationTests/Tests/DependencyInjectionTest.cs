@@ -7,12 +7,12 @@ using Acme.ShoppingCart.DomainEvent;
 using Acme.ShoppingCart.Facade;
 using Acme.ShoppingCart.WebApi.Controllers;
 using Cortside.Health.Controllers;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Shouldly;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -93,7 +93,7 @@ namespace Acme.ShoppingCart.WebApi.IntegrationTests.Tests {
             int count = FindAndVerifyTypeResolution(typeof(CustomerFacade), serviceProvider);
 
             // assert that types were found and no exceptions happened before now
-            count.Should().BePositive();
+            count.ShouldBePositive();
         }
 
         [Fact]
@@ -104,7 +104,7 @@ namespace Acme.ShoppingCart.WebApi.IntegrationTests.Tests {
             int count = FindAndVerifyTypeResolution(typeof(OrderStateChangedHandler), serviceProvider);
 
             // assert that types were found and no exceptions happened before now
-            count.Should().BePositive();
+            count.ShouldBePositive();
         }
 
         private int FindAndVerifyTypeResolution(Type t, IServiceProvider serviceProvider) {
